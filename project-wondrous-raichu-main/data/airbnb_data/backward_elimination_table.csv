@@ -1,0 +1,18 @@
+Step,Variable eliminated,Adjusted R-squared
+1,Listing rating,0.6076052964176584
+2,Host communication rating,0.60757231819932
+3,Host identity is verified,0.6074454878703409
+4,Dishes and silverware,0.6072562089947687
+5,Superhost status,0.6069712368783351
+6,Wifi,0.6067563719179923
+7,Heating,0.6063708746196982
+8,Host acceptance rate,0.6057788866805118
+9,Host response time,0.6031171170253704
+10,Cooking basics,0.602570958682865
+11,Quiet environment,0.6019439520965264
+12,Dedicated workspace,0.6010526511978451
+13,Coffee maker,0.5999460222573724
+14,Air conditioning,0.5989912593553746
+15,Room type,0.4881702987194665
+16,Microwave,0.4869977849244014
+17,Washer,0.4807864208852254

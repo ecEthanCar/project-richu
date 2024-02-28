@@ -1,0 +1,177 @@
+---
+title: "Wondrous Raichu"
+subtitle: "Project Proposal"
+format: html
+editor: visual
+---
+
+```{r}
+#| label: load-pkgs
+#| message: false
+
+library(tidyverse)
+library(skimr)
+library(jsonlite)
+library(dplyr)
+library(tibble)
+```
+
+# Data 1
+
+## Introduction and data
+
+-   Identify the source of the data.
+
+    The dataset comes from **Inside** **Airbnb** (<http://insideairbnb.com/get-the-data/>), an open platform that provides data on Airbnb listings in different locations around the world.
+
+-   State when and how it was originally collected (by the original data curator, not necessarily how you found the data).
+
+    The data gives NYC listings from the last quarter in 2022. It is aggregated through Airbnb's public information on their website and shows all listings from that respective quarter at the particular time of publication (i.e., for this particular dataset, December 4th and 5th, 2022). 
+
+-   Write a brief description of the observations.
+
+    The observations published in this dataset contain all the pieces of information posted on a typical Airbnb listing. It describes the host and who they are, ratings on the host and place of stay, etc.
+
+## Research question(s)
+
+### How does Airbnb listing prices depend on rating of listing, location of listing, amenities included in the listing, and host response time?
+
+In this research question, we aim to understand what factors affect Airbnb listing prices. There are five variables: four independent variables (i.e., rating of listing, location of listing, amenities included in the listing, and host response time) and one dependent variable (i.e. listing price). Listing price, rating of listing, and host response time are quantitative variables, while location of listing and amenities included in the listing are categorical variables.
+
+This research question is important because it provides us with a better understanding of the Airbnb price mechanism, which can shed light on the broader dynamics of the sharing economy and the way in which online platforms like Airbnb are changing the traditional hospitality industry.
+
+Our hypothesis is that a high listing rating, a more comprehensive list of included amenities, a quick host response time, and a listing located in a safe and convenient location will all lead to higher listing prices.
+
+### How do characteristics (i.e., ratings and descriptions) of listings and of hosts affect the prices of listings?
+
+In this research question, we aim to understand how the characteristics of listings and hots affect the prices of listings on Airbnb. There are five variables: four independent variables (i.e., rating of host, description of host, rating of listing, description of listing) and one dependent variable (i.e. listing price). Ratings and listing prices are quantitative variables, while descriptions are categorical variables.
+
+This research question is important because it highlights the strategies hosts take to make a good impression on potential guests and remain competitive in the crowded Airbnb marketplace. Moreover, for potential guests, understanding the strategies hosts use can help them make more informed decisions when selecting a listing that meets their needs and budget.
+
+Our hypothesis is that higher listing ratings and higher host ratings will lead to higher listing prices. Furthermore, listings and hosts with more detailed and attractive descriptions will lead to higher listing prices.
+
+### What are the most popular neighborhoods for Airbnb listings and how does this popularity vary by listing type and price?
+
+In this research question, we aim to understand how the popularity of Airbnb listings depend on listing type and listing price. Here, we can associated popularity with high ratings and high number of reviews. There are three variables: two independent variables (i.e., listing type and listing price) and two dependent variables (i.e. ratings and number of reviews). Listing type is a categorical variable, while listing price, ratings, and number of reviews are quantitative variables.
+
+This research question is important as it can provide valuable insights into the preferences of travelers and market trends for Airbnb hosts and guests. It helps potential hosts to identify profitable areas for their listings and to understand the preferences of Airbnb customers. Identifying the most popular neighborhoods for Airbnb listings and analyzing how this popularity varies by listing type and price can help hosts adjust their pricing strategies and better target their listings, while guests can make more informed decisions on where to stay. Additionally, this research can shed light on the factors that influence the popularity of neighborhoods for Airbnb listings, providing valuable information for city planners, policymakers, and tourism agencies in shaping their urban development strategies and promoting tourism in specific areas.
+
+Our hypothesis is that the most popular neighborhood will be Manhattan because it is the center of business and entertainment. Moreover, we hypothesize that entire home/apt listings will be more popular compared to private or shared rooms and that lower-priced listings will be more popular than higher-priced ones.
+
+## Glimpse of data
+
+```{r}
+#| label: load-airbnb-data
+#| message: false
+#| warning: false
+
+airbnb_data <- read_csv("data/airbnb_data/airbnb_data.csv")
+
+# Preview some rows
+head(airbnb_data)
+
+# Skim through data
+skim(airbnb_data)
+```
+
+# Data 2
+
+## Introduction and data
+
+-   Identify the source of the data.
+
+    The dataset comes from **Yelp** **Dataset** (<https://www.yelp.com/dataset>), which provides a subset of the businesses, reviews, and user data on Yelp.
+
+-   State when and how it was originally collected (by the original data curator, not necessarily how you found the data).
+
+    The Yelp dataset was originally collected by Yelp's data team and is publicly available for research and educational purposes. The dataset includes information on businesses located in 10 metropolitan areas in four countries: the United States, Canada, the United Kingdom, and Germany.
+
+-   Write a brief description of the observations.
+
+    The dataset is divided into several JSON files:
+
+    -   business.json contains business data including location data, attributes, and categories
+
+    -   review.json contains fill review text data 
+
+    -   user.json contains user data and all the metadata associated with users
+
+    -   checkin.json contains data on checkins on a business
+
+    -   tip.json contains data on tips written by a user on a business
+
+    In this proposal, we will focus on the data outlined in business.json. The business.json file contains location details (address, city, state, etc.), number of stars, as well as number of reviews among other things.
+
+## Research question
+
+### Are there differences in the way that customers review chain vs. independent restaurants, and do these differences vary depending on the type of cuisine or location?
+
+In this research question, we aim to understand how customers view chain and independent restaurants. Customer perceptions can be analyzed through ratings and reviews. There are five variables: three independent variables (i.e., type of restaurant, type of cuisine, and location) and two dependent variables (i.e., ratings and reviews). Ratings are quantitative variables, while reviews, type of restaurant, type of cuisine, and location are categorical variables.
+
+This research question is important because it can help restaurant owners and managers to better understand customer perceptions and preferences towards chain and independent restaurants. By examining whether differences in customer reviews vary based on cuisine type or location, insights can be gained into the factors that influence customer satisfaction and provide guidance on how to improve customer experiences.
+
+Our hypothesis is that customers may perceive chain and independent restaurants differently, with chain restaurants being perceived as more consistent and reliable in terms of quality and service, while independent restaurants may be seen as more unique and offering more personalized experiences. The differences in customer perceptions may also vary depending on the type of cuisine or location, with certain cuisines or cities having a stronger preference for chain or independent restaurants.
+
+## Glimpse of data
+
+```{r}
+#| label: load-yelp-data
+#| message: false
+
+# Consulted Professor Soltoff on how to rectangle dataset
+yelp_raw <- read_lines(file = "data/yelp_data/yelp_academic_dataset_business.json")
+
+yelp_list <- map(.x = yelp_raw, .f = fromJSON)
+
+yelp_data <- tibble(yelp = yelp_list) |>
+  unnest_wider(col = yelp)
+
+# Preview some rows
+head(yelp_data)
+
+# Skim through data
+skim(yelp_data)
+```
+
+# Data 3
+
+## Introduction and data
+
+-   Identify the source of the data.
+
+    The dataset was downloaded from **Kaggle** (<https://www.kaggle.com/code/ahmetburabua/drive-to-survive/input?select=final.csv>).
+
+-   State when and how it was originally collected (by the original data curator, not necessarily how you found the data).
+
+    The dataset was created by Ahmet Buğra Buğa, a data analyst at Mathrics (based on the Kaggle account). The account did not say much about the data curation process other than the fact that "the dataset was collected from public places and combined." We presume that the data was scraped from sources like Wikipedia and the Ergast Developer API (<http://ergast.com/mrd/>). In the Kaggle page, we can also access yearly race data from 1983-2021. The Kaggler was able to compress the data into one "final.csv" file.
+
+-   Write a brief description of the observations.
+
+    The observations included in the "final.csv" file contain all the pieces of information relevant to a particular race. The dataset tells you which circuit the race is on, whether the weather during the race is warm, cold, dry, wet, and/or cloudy, and what grid position a driver started the race in among other things.
+
+## Research question
+
+### What factors are most strongly associated with drivers' success in Formula 1 racing, and how have these factors changed over time?
+
+In this research question, we aim to understand the factors that contribute to success in Formula 1 racing, including the race circuit, weather, starting grid position, and drivers' ages. Here, we equate drivers' success with placing a podium in the race (i.e., first, second, and third place). There are five variables: four independent variables (i.e., the race circuit, weather, starting grid position, and drivers' ages) and one dependent variable (i.e. finishing grid position). Starting and finishing grid positions and drivers' ages are quantitative variables, while race circuit and weather are categorical variables. Other quantitative variables we could include in our analysis when it comes to success include driver points and qualifying times.
+
+Formula 1 racing is one of the most popular and competitive sports in the world, and understanding the factors that contribute to success in this field is crucial for teams, drivers, and fans. By identifying the most important factors associated with success in Formula 1 racing, teams can optimize their strategies and improve their chances of winning, while fans can gain a deeper appreciation for the skills and abilities required to excel in this sport. Moreover, studying how these factors have changed over time can provide insights into the evolution of Formula 1 racing and shed light on the impact of technological advancements, changes in regulations, and other factors on the sport.
+
+Our hypothesis is that warm and dry weather conditions are more conducive to better driver performance compared to cold, cloudy, and/or wet weather. Dry roads provide better traction for tires, enabling drivers to control the car more effectively. On the other hand, wet weather can cause the tires to slip, potentially resulting in loss of control. In cold weather, the tires and mechanical components may not reach optimal operating temperatures, leading to reduced grip and responsiveness of the car.
+
+Furthermore, we hypothesize that there is an optimal age for drivers in Formula 1, as being too young may lead to lack of experience and being too old may result in slower reaction time.
+
+## Glimpse of data
+
+```{r}
+#| label: load-f1-data
+#| message: false
+
+f1_data <- read_csv("data/f1_data/f1_data.csv")
+
+# Preview some rows
+head(f1_data)
+
+# Skim through data
+skim(f1_data)
+```

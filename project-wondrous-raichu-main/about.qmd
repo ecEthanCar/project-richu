@@ -1,0 +1,13 @@
+---
+title: "About"
+format: html
+editor: visual
+---
+
+This project was developed by **Wondrous Raichu** for [INFO 2950: Introduction to Data Science](https://info2950.infosci.cornell.edu) at Cornell University. The team is comprised of the following team members:
+
+-   Ethan Carlson: Sophomore, majoring in Information Science and Statistical Science.
+-   Boyang Li: Junior, majoring Information Science and minoring in Business.
+-   Ribo Li: Junior, majoring in Information Science and Global Development.
+-   Dave Tirtariyadi: Junior, majoring in Chemical Engineering and minoring in Information Science.
+-   Tasnimul Taher: Junior, majoring in Information Science and minoring in Business.

@@ -1,0 +1,791 @@
+---
+title: "Analyzing Airbnb data"
+subtitle: "Exploratory data analysis"
+format: html
+editor: visual
+execute:
+  echo: true
+  cache: false
+---
+
+```{r}
+#| label: load-pkgs
+#| message: false
+
+library(tidyverse)
+library(skimr)
+library(jsonlite)
+library(dplyr)
+library(scales)
+library(tidymodels)
+library(lubridate)
+```
+
+```{r}
+#| label: load-airbnb-data
+#| message: false
+
+# Load airbnb listings data (03/06/2023)
+airbnb_data <- read_csv("data/airbnb_data/03_06_2023_listings.csv")
+
+# Preview some rows
+head(airbnb_data)
+
+# Skim through data
+skim(airbnb_data)
+```
+
+# Research question(s)
+
+How does Airbnb listing prices depend on rating of listing, location of listing, amenities included in the listing, and host response time?
+
+How do characteristics (i.e., ratings and descriptions) of listings and of hosts affect the prices of listings?
+
+What are the most popular neighborhoods for Airbnb listings and how does this popularity vary by listing type and price?
+
+# Data collection and cleaning
+
+We see from `skim` that there are several variables that have missing values, including `neighborhood_overview`, `host_location`, `host_about` and `host_neighbourhood` among others. Although we want to look at host characteristics, we believe that the columns `host_location` and `host_neighbourhood` will not be of too much use in our analysis, so we can ignore it. For other columns, we will appropriately deal with missing values.
+
+Furthermore, we recognize that `first_review` and `last_review` both have 10,304 missing values. This probably means that 10,304 listings don't have any reviews. It might be interesting to subset these listings to see what factors affect the listing prices of Airbnb listings that do not have reviews.
+
+```{r}
+#| label: no-reviews
+
+no_reviews <- airbnb_data |>
+  filter(is.na(first_review))
+```
+
+`Price` is not numeric in the dataset, so we change the format to numeric.
+
+```{r}
+#| label: numeric-price
+
+airbnb_data <- airbnb_data |>
+  mutate(price = parse_number(price))
+```
+
+Below we outline how we cleaned and parsed through the main dataset `airbnb_data` to look at several major components: location, availability, amenities, host characteristics, and listing characteristics.
+
+## Location
+
+For my data cleaning, I have chosen to filter out all columns related to the location of each Airbnb listing, including its latitude, longitude, and neighborhood located in NYC among other things. While it was clear from the start that I would likely not use most of the variable I selected, I believe that keeping in mind these other forms of listing location could be useful down the line. I also obviously included the price of said listings, mutating a new column that make the price into a raw number instead of a character string.
+
+```{r}
+#| label: boxplot-neighborhood-prices
+
+# Data cleaning: main cleaning was $ signs and selecting necessary variables
+df_location_price <- airbnb_data |>
+  select(
+    latitude, longitude, neighbourhood, neighbourhood_cleansed,
+    neighbourhood_group_cleansed, price
+  ) |>
+  mutate(numb_dollar = as.numeric(gsub("\\$|,", "", price)))
+df_location_price
+```
+
+## Availability
+
+In our dataset, we have several columns that talk about the availability of Airbnb listings. availability\_\* tells us the availability of the listing \* days in the future as determined by the calendar. We should keep in mind that a listing may not be available because it has been booked by a guest or blocked by the host.
+
+It is interesting to extract the month and year for the availability for analysis on the availability.
+
+```{r}
+#| label: availability- price- seasonal
+
+# Extract month and year from last_review column
+airbnb_data_availability <- airbnb_data |>
+  mutate(month_year = floor_date(as.Date(last_review), unit = "month")) |>
+  select(id, price, availability_30, availability_60, availability_90, availability_365, month_year)
+```
+
+## Amenities
+
+A major issue with `amenities` is that it is stored as a character list. We need to parse and clean this so that we can do more analysis.
+
+```{r}
+#| label: amenities-df
+
+amenities_df <- airbnb_data |>
+  # Create subset of Airbnb data pertaining to amenities
+  select(id, amenities) |>
+  # Replace any occurrences of square brackets with empty string
+  mutate(amenities = gsub("\\[|\\]", "", amenities)) |>
+  # Split the list by comma and make separate rows
+  separate_rows(amenities, sep = ", ") |>
+  # Unnest the list
+  unnest(amenities)
+amenities_df
+
+# Save a csv copy for future purposes
+# write.csv(amenities_df, "data/airbnb_data/amenities_data.csv", row.names=FALSE)
+```
+
+Now that we have parsed the amenities out of its list format, there is another problem. How the amenities are reported in the dataset is dependent on how the host described their list of amenities. In other words, there is no standardization on how amenities are reported. That is why we have multiple variations of the same amenity. For example, we have several variations of "HDTV" depending on the size of the HDTV and the applications (Amazon Prime, Netflix, etc.) that come with it among other factors. Similarly, many listings have "fast wifi" listed as an amenity, but we see variations depending on the speed listed.
+
+Is there a way to consolidate the different variations? One way is to conduct partial matching with some desired amenity (the below code looks for "fast wifi") and create a new column to store a boolean that describes whether the listing has that desired amenity or not.
+
+```{r}
+#| label: fast-wifi
+
+fast_wifi <- amenities_df |>
+  mutate(fast_wifi = str_detect(amenities, regex("fast wifi", ignore_case = TRUE)))
+fast_wifi
+```
+
+Can we make this process somewhat more reproducible and flexible? What if we want to look at other amenities? Below, we check if a listing has "wifi," "parking," "dryer", "washer," and "kitchen" listed in their list of amenities. Certainly, this list of amenities can be changed depending on our research scope later.
+
+```{r}
+#| label: essential-amenities-df
+
+# Create character vector of amenities of interest
+essentials <- c("wifi", "parking", "dryer", "washer", "kitchen")
+
+# Duplicate amenities_df
+essential_amenities_df <- data.frame(amenities_df)
+
+# Iterate over amenities in essentials
+for (amenity in essentials) {
+  essential_amenities_df <- essential_amenities_df |>
+    # Create boolean column
+    mutate(!!amenity :=
+      str_detect(
+        essential_amenities_df$amenities,
+        regex(amenity, ignore_case = TRUE)
+      ))
+}
+
+# Group by listing
+listing_esential_amenitites <- essential_amenities_df |>
+  group_by(id) |>
+  summarise(
+    wifi = any(wifi),
+    parking = any(parking),
+    dryer = any(dryer),
+    washer = any(washer),
+    kitchen = any(kitchen)
+  ) |>
+  pivot_longer(
+    cols = -id,
+    names_to = "amenities",
+    values_to = "listed"
+  )
+listing_esential_amenitites
+```
+
+Since we have the listing identifier in `listing_esential_amenitites`, we can merge `listing_esential_amenitites` with our main dataset to gather information on price and learn about how amenities affect listing prices.
+
+## Host characteristics
+
+Another possible area of inquiry within this dataset is looking at a variety of host characteristics and how they possibly affect the price of a listing. The first step in doing so is making a dataframe with all the necessary yet pertinent variables that have to do with a host such as if they are a super host, their acceptance rate, etc.
+
+Since a host has many listings detailed in the main dataset, we often use the `distinct()` function to remove repeated `host_id`s when necessary; if `price` is a variable for these instances, we average the price of all listings per each individual host.
+
+```{r}
+#| label: host_characteristics
+
+# Dataframe with all variables to do with host characteristics
+host_char <- airbnb_data |>
+  select(
+    host_id,
+    host_is_superhost,
+    host_identity_verified,
+    host_has_profile_pic,
+    host_since,
+    host_response_time,
+    host_response_rate,
+    host_acceptance_rate,
+    host_listings_count,
+    review_scores_communication,
+    price
+  )
+host_char
+```
+
+A subset of the aforementioned dataframe has to do with the number of listings a host has and how that might impact the average price of a host's listings. To do so, we need to select `host_listings_count` and the `price`. We make sure to omit any `NA` values for visual easability purposes.
+
+```{r}
+#| label: host-listings-df
+
+# Data frame with each host, their total num of listings
+# and their average price
+host_list <- host_char |>
+  select(host_id, host_listings_count, price) |>
+  group_by(host_id) |>
+  mutate(avg_price_host = mean(price)) |>
+  distinct(host_id, .keep_all = TRUE) |>
+  na.omit(host_listings_count)
+
+host_list
+```
+
+Another potential aspect to look at is whether certain host attributes can be used as a predictive measure in determining if a host is a super host. For this, we can look at the variables `host_is_superhost`, `host_identity_verified`, and `host_has_profile_pic`. Furthermore, for future possible modeling methods, changing some variables to a quantifiable number is necessary, which can be seen below:
+
+```{r}
+#| label: superhost-df
+
+# Data frame with each host, if they are a super host,
+# if they have a profile picture, and if their identity is verified
+superhost <- host_char |>
+  select(
+    host_id,
+    host_is_superhost,
+    host_identity_verified,
+    host_has_profile_pic
+  ) |>
+  distinct(host_id, .keep_all = TRUE) |>
+  mutate(
+    host_is_superhost = if_else(host_is_superhost == "TRUE", 1, 0),
+    host_identity_verified = if_else(host_identity_verified == "TRUE", 1, 0),
+    host_has_profile_pic = if_else(host_has_profile_pic == "TRUE", 1, 0)
+  )
+superhost
+```
+
+Within the main Airbnb dataframe is a variable called `review_scores_communication`. This can be interesting to use against `price` as consumers on the Airbnb website definitely want to know how communicative a host is when choosing a listing.
+
+```{r}
+#| label: host-rating-df
+
+# Data frame with host's communication rating and price
+rating <- host_char |>
+  select(
+    host_id,
+    review_scores_communication,
+    price
+  )
+
+# Find average price of listings per host
+host_rating <- host_char |>
+  select(host_id,
+         review_scores_communication,
+         price) |>
+
+# Find average price of listings per host
+  group_by(host_id) |>
+  mutate(price = mean(price)) |>
+  # Remove repeat of same hosts
+  distinct(host_id, .keep_all = TRUE) |>
+  na.omit(rating)
+
+host_rating
+```
+
+One last area to look, at in tandem with host characteristics, might have to do with a host's acceptance rate. Here we select `host_acceptance_rate`, `price`, and `host_is_superhost` to see how acceptance rate varies against price and how it might be influenced by them being a super host or not.
+
+```{r}
+#| label: host_acceptance-df
+
+# Data frame with host's acceptance rate, price, and if they
+# are a super host
+accept <- host_char |>
+  select(
+    host_id,
+    host_acceptance_rate,
+    price,
+    host_is_superhost
+  ) |>
+  group_by(host_id) |>
+  mutate(price = mean(price)) |>
+  distinct(host_id, .keep_all = TRUE)
+
+# Make character N/A a logical NA value
+accept[accept == "N/A"] <- NA
+
+# Omit NA values
+accept <- accept |>
+  na.omit(host_acceptance_rate) |>
+  # Change acceptance rate to numbers
+  mutate(
+    host_acceptance_rate = substr(host_acceptance_rate, 0, nchar(host_acceptance_rate)),
+    host_acceptance_rate = parse_number(host_acceptance_rate)
+  ) |>
+  # Change super host column to categorical variable
+  mutate(host_is_superhost = if_else(host_is_superhost == "TRUE", "Superhosts", "Not Superhost"))
+
+# Plot listings versus price dataset
+ggplot(host_list,
+  mapping = aes(x = avg_price_host, y = host_listings_count)
+) +
+  geom_point() +
+  theme_minimal() +
+  scale_x_continuous(limits = quantile(host_list$price, c(0.1, 0.95))) +
+  labs(
+    title = "# of listings vs average price",
+    x = "Average price (per host)",
+    y = "# of listings (per host)"
+  )
+
+# Plot host rating and price of listings
+ggplot(rating,
+  mapping = aes(x = price, y = review_scores_communication)
+) +
+  geom_point() +
+  theme_minimal() +
+  scale_x_continuous(limits = quantile(rating$price, c(0.1, 0.95))) +
+  labs(
+    title = "Host communication rating vs price",
+    x = "Average price (per host)",
+    y = "Host acceptance rate"
+  )
+
+# Plot acceptance rate and price and facet by super hosts
+ggplot(accept,
+  mapping = aes(x = price, y = host_acceptance_rate)
+) +
+  geom_col(width = 15, fill = "lightblue") +
+  facet_wrap(vars(host_is_superhost)) +
+  theme_bw() +
+  scale_x_continuous(
+    limits = quantile(accept$price, c(0.1, 0.95)),
+    labels = label_dollar()
+  ) +
+  scale_y_continuous(labels = label_percent(scale = .001)) +
+  labs(
+    title = "Host acceptance rate vs price",
+    x = "Average price (per host)",
+    y = "Host acceptance rate"
+  )
+```
+
+## Listing characteristics
+
+There are a few variables that characterize a listing in our main dataset. To clean and parse the data more easily, we create smaller subsets of the data. Below we create two dataframes: 1) price and room type and 2) price and ratings. Not all listings have a rating, so we also omit observations with `NA` for rating. Similarily, not all listings have a value for `bedrooms`. This might be because there are studio apartments and other forms of non-traditional accommodations listed in Airbnb.
+
+```{r}
+#| label: listing-characteristics
+
+# Create a dataframe for price and room type
+room_type_price <- airbnb_data |>
+  select(id, price, room_type)
+
+# Create a dataframe for price and ratings
+ratings_price <- airbnb_data |>
+  select(id, price, review_scores_rating) |>
+  drop_na()
+
+# Create a dataframe for price and number of bedrooms
+bedroom_price <- airbnb_data |>
+  select(id, price, bedrooms) |>
+  drop_na()
+```
+
+# Data description
+
+The `airbnb_data` dataset comes from Inside Airbnb (http://insideairbnb.com/get-the-data/), an open platform that provides data on Airbnb listings in different locations around the world.
+
+The objective of Inside Airbnb is to empower communities by providing them with information and data regarding the impact of Airbnb on residential areas. Their mission is to enable communities to make informed decisions and have control over the practice of renting homes to tourists, with the ultimate goal of achieving a vision where data is used to shape this industry.
+
+The data gives NYC listings from the first quarter in 2023. It is aggregated through Airbnb's public information on their website and shows all listings from that respective quarter at the particular time of publication (i.e., for this particular dataset, March 6, 2023).
+
+In terms of what processes might have influenced what data was observed and what was not, there is not much, if any. The data utilizes public information compiled from the Airbnb website, so, if a listing is on the website at the time of scraping, it will be on the dataset.
+
+No private information is being used: names, photographs, listings, and review details are all public. Furthermore, not much preprocessing was done (or explained) on the data. Evidence of this can be seen from the data. For example, price is noted as a `chr`, which is likely due to it being directly scraped from the webpage.
+
+All the Airbnb data scraped by Inside Airbnb is public, so all Airbnb hosts should be aware that their data and information can be scraped and used for other purposes.
+
+In `airbnb_data`, the observations (rows) are different Airbnb listings in NYC and the attributes (columns) are various variables that describe the listing. Some columns include `price`, `host_is_superhost`, `room_type`, and `review_scores_rating`.
+
+Above, we produced several subsets of the main dataset including `no_reviews`, `df_location_price,` `amenities_df`, and `room_type_price` among other dataframes.
+
+# Data limitations
+
+There are several limitations with our data:
+
+-   With our current dataset, we cannot do a time-series analysis on prices since the prices listed in `airbnb_data` is valid for the one day the data was scraped. There are more .csv files on Inside Airbnb that we can download and merge to conduct a time-series analysis on prices.
+
+-   We can only do analysis on Airbnb listings in NYC. How about Chicago? San DIego? London? Trends we find in NYC may not be applicable in other cities.
+
+# Exploratory data analysis
+
+## Location
+
+The next step was the exploratory analysis. For the sake of understanding the general trend of each region of NYC, I focused mainly on the column `neighbourhood_group_cleansed`, the broadest categorical variable for listing location, and compared it to `price` of the listings. However, I immediately noticed that there were a few exceptionally expensive listings within this data set, so I first tried boxploting the logarithmic prices, so that the values were readable. I also counted the number of actually listings per region of NYC so that I could understand the boxplots better.
+
+```{r}
+# Exploratory (while my main interest is in neighbourhood_group_cleansed, I want to include other relevant location data in this for future use)
+
+df_location_price |>
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+  ggplot(aes(neighbourhood_group_cleansed, fill = neighbourhood_group_cleansed)) +
+  geom_bar(show.legend = FALSE) +
+  labs(
+    x = "New York neighborhoods",
+    y = "Count",
+    title = "Priced Airbnb listing count within New York neighborhoods"
+  ) +
+  theme_minimal()
+
+df_location_price |>
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+  ggplot(aes(log(numb_dollar), neighbourhood_group_cleansed, fill = neighbourhood_group_cleansed)) +
+  geom_boxplot(show.legend = FALSE) +
+  theme_minimal() +
+  labs(
+    y = "New York neighborhoods",
+    x = "(logarithmic) Listing prices",
+    title = "Airbnb listing prices within New York neighborhoods"
+  ) +
+  scale_x_continuous(labels = label_dollar(scale_cut = cut_short_scale()))
+```
+
+However, this set up is likely not going to be helpful in understanding any other patterns other than the raw median / IQR / or outliers of the data, as the axis is only accounting for a very long and thing tail skewing the data heavily to the right. Because of this, I believe that we should have a cut off to look more closely at the majority of data points.
+
+```{r}
+# Exploratory V2 (Cutting off at $500 per night. I am fully aware that 500 is an arbitrary number and that we should decide a specific percentile in the future. The number was chosen to prove my point)
+# reasoning for cut-off: https://airbtics.com/airbnb-occupancy-rates-in-new-york-city/, histogram: patterns we could not be able to see if we didn't cut off the huge skewed tail.
+
+df_location_price |>
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+  filter(numb_dollar < 500) |>
+  ggplot(aes(numb_dollar, neighbourhood_group_cleansed, fill = neighbourhood_group_cleansed)) +
+  geom_boxplot(show.legend = FALSE) +
+  theme_minimal() +
+  labs(
+    y = "New York neighborhoods",
+    x = "Listing prices",
+    title = "Airbnb listing prices within New York neighborhoods (< $500/night)"
+  ) +
+  scale_x_continuous(labels = label_dollar(scale_cut = cut_short_scale()))
+
+df_location_price |>
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+  filter(numb_dollar < 500) |>
+  ggplot(aes(numb_dollar, fill = neighbourhood_group_cleansed)) +
+  geom_histogram(show.legend = FALSE, binwidth = 8) +
+  facet_wrap(facet = vars(neighbourhood_group_cleansed)) +
+  labs(
+    y = "Count",
+    x = "Listing prices",
+    title = "Airbnb listing prices within New York neighborhoods (< $500/night)"
+  ) +
+  scale_x_continuous(labels = label_dollar(scale_cut = cut_short_scale())) +
+  theme_minimal()
+```
+
+For the sake of my argument, I'm cutting off the data at \$500 per night for these two graphs. For example, the histogram shows patterns we could not be able to see if we didn't cut off the huge skewed tail, like how there appears to be multiple spikes in listings at rounded values (\$100 per night, \$200, \$300, etc). I am fully aware that 500 is an arbitrary number and that we should decide a specific percentile in the future.
+
+## Availability
+
+```{r}
+#| label: avail-vis
+
+# Create scatterplot to visualize relationship between availability and price
+ggplot(airbnb_data_availability, aes(x = availability_30, y = price)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Availability (30 days)", y = "Price (USD)") +
+  ggtitle("Relationship between Availability and Price") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Create scatterplot to visualize relationship between availability_365 and price by month/year
+ggplot(airbnb_data_availability, aes(x = availability_365, y = price, color = month_year)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Availability (365 days)", y = "Price (USD)", color = "Month/Year") +
+  ggtitle("Relationship between Availability and Price by Month/Year") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Create boxplot to compare price distribution across availability periods
+airbnb_data |>
+  select(
+    price, availability_30, availability_60, availability_90,
+    availability_365
+  ) |>
+  pivot_longer(cols = -price, names_to = "availability_period", values_to = "availability") |>
+  ggplot(aes(x = availability_period, y = price)) +
+  geom_boxplot(alpha = 0.5) +
+  labs(x = "Availability Period", y = "Price (USD)") +
+  ggtitle("Price Distribution by Availability Period") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+The first scatterplot shows the relationship between availability in the next 30 days and price. The second scatterplot shows the relationship between availability in the next 365 days and price, with each point colored by the month/year extracted from the "last_review" column.
+
+## Amenities
+
+We can visualize the top 20 amenities listed in Airbnb listings.
+
+```{r}
+#| label: top-20-amenities
+
+amenities_df |>
+  group_by(amenities) |>
+  count() |>
+  arrange(desc(n)) |>
+  head(20) |>
+  ggplot(mapping = aes(x = n, y = fct_reorder(amenities, n))) +
+  geom_col() +
+  labs(
+    x = "Count",
+    y = "Amenities",
+    title = "Top 20 amenities listed in Airbnb rentals in NYC, March 2023"
+  ) +
+  theme_minimal()
+```
+
+Upon analyzing the most frequently mentioned amenities in Airbnb listings in New York City, we observe that "Wifi" is the most common. Interestingly, "Dedicated workspace" also appears among the top 20 amenities, which may be attributed to the city's status as a major economic hub. This observation raises the question of whether there is significant demand for Airbnb accommodations among travelling employees who require a comfortable and productive workspace while away from their home offices.
+
+Earlier, we created `fast_wifi`, which outlines whether a listing has "fast wifi" listed in its list of amenities. Is there a trend between having fast wifi listed and listing price?
+
+```{r}
+#| label: fast-wifi-price
+
+# Merge fast_wifi with price
+fast_wifi_price <- airbnb_data |>
+  select(id, price) |>
+  merge(fast_wifi)
+
+# Calculate mean listing price, group by fast_wifi
+fast_wifi_price |>
+  group_by(fast_wifi) |>
+  summarise(
+    count = n(),
+    mean_price = mean(price)
+  )
+```
+
+We see that only around 2,000 listings out of over 40,000 listings in NYC advertise "fast wifi" as an amenity. Surprisingly, we do not see a significant difference in the mean listing price of listings that advertise "fast wifi" and those that do not. This finding suggests that the provision of Wifi is no longer a unique or distinguishing factor, and has become an essential and expected amenity in an Airbnb accommodation.
+
+```{r}
+#| label: essential-amenities
+
+essential_count <- listing_esential_amenitites |>
+  group_by(amenities, listed) |>
+  count()
+
+essential_pct <- essential_count |>
+  group_by(amenities) |>
+  mutate(pct = n / sum(n))
+
+essential_pct |>
+  ggplot(aes(x = str_to_title(amenities), y = pct, fill = listed)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Amenities",
+    y = "Percentage of listings",
+    fill = "Listed",
+    title = "A visual guide to essential Airbnb amenities in NYC",
+    subtitle = "Kitchen and Wifi are the two most listed essential amenities"
+  ) +
+  scale_y_continuous(labels = label_percent()) +
+  theme_minimal()
+```
+
+## Host characteristics
+
+Here we can visualize if the number of listings a host has affects their average price. From the graph shown below, it looks like there isn't necessarily a correlation between the two variables:
+
+```{r}
+#| label: host-characteristics-visuals
+
+# Plot listings versus price dataset
+ggplot(host_list,
+  mapping = aes(x = avg_price_host, y = host_listings_count)
+) +
+  geom_point() +
+  theme_minimal() +
+  scale_x_continuous(limits = quantile(host_list$price, c(0.1, 0.95))) +
+  labs(
+    title = "# of listings vs average price",
+    x = "Average price (per host)",
+    y = "# of listings (per host)"
+  )
+```
+
+Here we visualize a host's communication rating and their average price per listing. It looks like most hosts have a rating above 4. Even then, the prices of listings vary throughout.
+
+```{r}
+#| label: host-rating-visual
+
+# Plot host rating and price of listings
+ggplot(host_rating,
+       mapping = aes(x = price, y = review_scores_communication)) +
+  geom_point() +
+  theme_minimal() +
+  scale_x_continuous(limits = quantile(host_rating$price, c(0.1, 0.95))) +
+  labs(title = "Host communication rating vs price",
+       x = "Average price (per host)",
+       y = "Host acceptance rate")
+```
+
+Here we graph a host's acceptance rate against their average listing price and group it by whether or not the host is a super host. We see that between both super hosts and non-super hosts, as the average price of listings per host goes up, their acceptance rate goes down. This is obvious as both graphs are right-skewed.
+
+```{r}
+#| label: acceptance-rate-visual
+
+# Plot acceptance rate and price and facet by super hosts
+ggplot(accept,
+       mapping = aes(x = price, y = host_acceptance_rate)) +
+  geom_col(width = 15, fill="lightblue") +
+  facet_wrap(vars(host_is_superhost)) +
+  theme_bw() +
+  scale_x_continuous(limits = quantile(accept$price, c(0.1, 0.95)),
+                     labels = label_dollar()) +
+  scale_y_continuous(labels = label_percent(scale = .001)) +
+  labs(title = "Host acceptance rate vs price",
+       x = "Average price (per host)",
+       y = "Host acceptance rate")
+```
+
+## Listing characteristics
+
+Let's first see how many listings there are in each available room type.
+
+```{r}
+#| label: room-type-count
+
+room_type_price |>
+  group_by(room_type) |>
+  count() |>
+  ggplot(aes(x = room_type, y = n)) +
+  geom_col() +
+  labs(
+    x = "Room type",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+We see that the "Entire home/apt" and "Private room" room types are most frequent. How does price vary with the room types?
+
+```{r}
+#| label: room-type-price
+
+# Graph Price vs. Room type
+room_type_price |>
+  group_by(room_type) |>
+  ggplot(aes(x = room_type, y = price)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = quantile(room_type_price$price, c(0.1, 0.9))) +
+  labs(x = "Room Type", y = "Price") +
+  theme_minimal()
+```
+
+We see that the median prices of hotel rooms are most expensive, followed by entire home/apt options, and followed by private room and shared room options.
+
+Another characteristic of a listing is the number of bedrooms it has, given by column `bedrooms` in `airbnb_data`. Let's first see the distribution of number of bedrooms.
+
+```{r}
+#| label: bedroom-hist
+
+bedroom_price |>
+  ggplot(aes(x = bedrooms)) +
+  geom_histogram() +
+  labs(
+    x = "Number of bedrooms",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+We see that the histogram is very much right-skewed and most listings have less than four bedrooms. How does price relate to the number of bedrooms?
+
+```{r}
+# Graph Price vs. bedrooms
+bedroom_price |>
+  ggplot(aes(x = bedrooms, y = price)) +
+  geom_jitter() +
+  labs(x = "Bedrooms", y = "Price") +
+  theme_minimal()
+```
+
+There are some outliers that make the scatterplot look weird. Let's try to 1) only take listings up to the 75th percentile in prices and 2) only see listings with less than four bedrooms.
+
+```{r}
+#| label: bedroom-price-boxplot
+
+bedroom_price |>
+  filter(bedrooms <= 4) |>
+  ggplot(aes(y = price)) +
+  geom_boxplot() +
+  facet_wrap(vars(bedrooms), ncol = 4, nrow = 1) +
+  scale_y_continuous(limits = quantile(bedroom_price$price, c(0, 0.75))) +
+  labs(
+    y = "Price"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+```
+
+From the boxplots above, we see that two- and three-bedroom options are generally more expensive.
+
+```{r}
+# Fit linear regression model
+price_bedroom_fit <- linear_reg() |>
+  fit(price ~ bedrooms, data = bedroom_price)
+tidy(price_bedroom_fit)
+glance(price_bedroom_fit)
+
+bedroom_price |>
+  summarize(
+    c = cor(bedrooms, price)
+  )
+```
+
+Another characteristic of a listing is the number of bathrooms it has, given by column `bathrooms` in `airbnb_data`. Let's first see the distribution of number of bathrooms. We first need to tidy the data.
+
+```{r}
+#| label: data-tidying
+
+# Remove rows with missing values in Bedrooms or Bathrooms columns
+listing <- airbnb_data %>%
+  select(id, price, neighbourhood_cleansed, neighbourhood_group_cleansed, 
+         room_type, bedrooms, review_scores_rating, bathrooms_text) |> 
+  filter(!is.na(bedrooms), !is.na(bathrooms_text))
+
+# Extract number of bathrooms from bathrooms_text
+listing$bathrooms <- str_extract(listing$bathrooms_text, "\\d+")
+
+# Convert "shared" bathrooms to half a bathroom
+listing$bathrooms <- ifelse(str_detect(listing$bathrooms_text, "shared"), 
+                                     as.numeric(listing$bathrooms)/2, 
+                                     listing$bathrooms)
+
+# Convert "private" bathrooms to numeric
+listing$bathrooms <- ifelse(str_detect(listing$bathrooms_text, "private"), 
+                                     as.numeric(listing$bathrooms), 
+                                     listing$bathrooms)
+
+# Change the bathrooms from charaters to numeric values
+listing <- listing |>
+  mutate(bathrooms = as.numeric(bathrooms))
+```
+
+```{r}
+#| label: bathroom number
+
+listing |>
+  ggplot(aes(x = bathrooms)) +
+  geom_histogram(binwidth = 1) +
+  labs(
+    x = "Number of bathrooms",
+    y = "Count",
+    title = "Count of number of bathrooms on Airbnb NYC listing"
+  ) +
+  theme_minimal()
+```
+
+We can see that most listings have 1 bathroom, then half bathroom, and then 2 bathrooms. The number of listings with other numbers of bathrooms is not too small to be representative.
+
+```{r}
+#| label: graph price vs. bathroom numbers
+
+listing |>
+  filter(bathrooms <= 4) |>
+  ggplot(aes(y = price)) +
+  geom_boxplot() +
+  facet_wrap(vars(bathrooms), ncol = 7, nrow = 1) +
+  scale_y_continuous(limits = quantile(listing$price, c(0, 0.9))) +
+  labs(x = "Bathrooms",
+       y = "Price",
+       title = "Price vs. Bathroom numbers in NYC") +
+  theme(axis.text.x = element_blank()) +
+  theme_minimal()
+```
+
+# Questions for reviewers
+
+Some questions we have are:
+
+-   Are our research questions okay? Do we need to be more specific? More broad?
+
+-   Can you think of other variables that we can include in our analysis, or you think would be interesting to look into?

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analyzing Airbnb Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">
+ <span class="menu-text">TEAM NAME</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./proposal.html">
+ <span class="menu-text">Proposal</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./eda.html">
+ <span class="menu-text">Exploratory data analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pre-registration.html">
+ <span class="menu-text">Pre-registered analyses</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./presentation.html">
+ <span class="menu-text">Presentation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./report.html" aria-current="page">
+ <span class="menu-text">Report</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./appendicies.html">
+ <span class="menu-text">Appendicies</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#data-description" id="toc-data-description" class="nav-link" data-scroll-target="#data-description">Data description</a></li>
+  <li><a href="#what-affects-price" id="toc-what-affects-price" class="nav-link" data-scroll-target="#what-affects-price">What affects price?</a>
+  <ul class="collapse">
+  <li><a href="#analysis-1-location" id="toc-analysis-1-location" class="nav-link" data-scroll-target="#analysis-1-location">Analysis 1: Location</a></li>
+  <li><a href="#analysis-2-listing-characteristics" id="toc-analysis-2-listing-characteristics" class="nav-link" data-scroll-target="#analysis-2-listing-characteristics">Analysis 2: Listing characteristics</a>
+  <ul class="collapse">
+  <li><a href="#room-type-number-of-bedrooms-and-number-of-bathrooms" id="toc-room-type-number-of-bedrooms-and-number-of-bathrooms" class="nav-link" data-scroll-target="#room-type-number-of-bedrooms-and-number-of-bathrooms">Room type, number of bedrooms, and number of bathrooms</a></li>
+  <li><a href="#extra-amenities" id="toc-extra-amenities" class="nav-link" data-scroll-target="#extra-amenities">Extra amenities</a></li>
+  <li><a href="#work-from-home-criteria" id="toc-work-from-home-criteria" class="nav-link" data-scroll-target="#work-from-home-criteria">Work-from-home criteria</a></li>
+  </ul></li>
+  <li><a href="#analysis-3-host-characteristics" id="toc-analysis-3-host-characteristics" class="nav-link" data-scroll-target="#analysis-3-host-characteristics">Analysis 3: Host characteristics</a></li>
+  </ul></li>
+  <li><a href="#evaluation-of-significance" id="toc-evaluation-of-significance" class="nav-link" data-scroll-target="#evaluation-of-significance">Evaluation of significance</a>
+  <ul class="collapse">
+  <li><a href="#fitting-a-multivariate-linear-regression-model" id="toc-fitting-a-multivariate-linear-regression-model" class="nav-link" data-scroll-target="#fitting-a-multivariate-linear-regression-model">Fitting a multivariate linear regression model</a></li>
+  <li><a href="#performing-backward-elimination" id="toc-performing-backward-elimination" class="nav-link" data-scroll-target="#performing-backward-elimination">Performing backward elimination</a></li>
+  </ul></li>
+  <li><a href="#using-machine-learning-to-predict-price" id="toc-using-machine-learning-to-predict-price" class="nav-link" data-scroll-target="#using-machine-learning-to-predict-price">Using machine learning to predict price</a></li>
+  <li><a href="#interpretation-and-conclusions" id="toc-interpretation-and-conclusions" class="nav-link" data-scroll-target="#interpretation-and-conclusions">Interpretation and conclusions</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analyzing Airbnb Data</h1>
+<p class="subtitle lead">Report</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell" data-hash="report_cache/html/load-pkgs_2d278427fb836e8480bb8b7020d2e629">
+
+</div>
+<div class="cell" data-hash="report_cache/html/load-data_59f00c4d69834e3367dbb98d933e71e4">
+
+</div>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>Since its 2008 launch, Airbnb has transformed the travel and hospitality sector. Generating billions in revenue and offering over six million listings globally—surpassing the top three hotel chains combined—it has disrupted conventional travel and enabled everyday people to become hospitality providers. Studies reveal a 1% rise in Airbnb listings leads to a 0.03% drop in hotel revenues in major US cities (Dogru et al., 2019). As Airbnb expands and influences industries, research is crucial to comprehend its market and user impacts. Specifically, our research aims to identify key Airbnb factors that have strong predictability for price. Through both univariate and multivariate regression analysis and various hypotheses testings, our findings conclude that the following eight variables have the highest degree of impact on Airbnb’s price mechanism: the listing’s location, cleanliness score, room type, number of bedrooms and bathrooms, and the presence of a microwave, washer, and dryer.</p>
+</section>
+<section id="data-description" class="level1">
+<h1>Data description</h1>
+<p>In this report, we utilized the dataset obtained from <a href="http://insideairbnb.com/get-the-data/">Inside Airbnb</a>, an open platform offering global Airbnb listing data to empower communities with insights on Airbnb’s residential impact. The dataset is aggregated through Airbnb’s public information on their website and contains information on over 42,000 listings in New York City as of March 6, 2023.</p>
+<p>In terms of what processes might have influenced what data was observed and what was not, there is not much, if any. The data utilizes public information compiled from the Airbnb website, so, if a listing is on the website at the time of scraping, it will be on the dataset. No private information is being used: names, photographs, listings, and review details are all public. Furthermore, not much preprocessing was done (or explained) on the data. Evidence of this can be seen in the data. For example, the price is noted as a <code>chr</code>, which is likely due to it being directly scraped from the webpage.</p>
+<p>All the Airbnb data scraped by Inside Airbnb is public, so all Airbnb hosts should be aware that their data and information can be scraped and used for other purposes. The dataset’s observations are NYC Airbnb listings, with attributes describing listings and hosts, such as <code>price</code>, <code>host_is_superhost</code>, <code>room_type</code>, and <code>review_scores_rating</code>. We performed our own data cleaning, which can be seen in <a href="./appendicies.html#appendix-1-data-cleaning">Appendix 1</a>.</p>
+</section>
+<section id="what-affects-price" class="level1">
+<h1>What affects price?</h1>
+<p>This report examined factors influencing Airbnb listing prices in New York City. We analyzed three main categories: (1) location, (2) listing characteristics (e.g., bedrooms, amenities), and (3) host characteristics (e.g., super-host status, response time). Each variable is summarized and its relationship with price is displayed. We fit linear regression models for individual variables and perform a multivariable linear regression at the end, as well as fit machine learning models to create a price predictor model.</p>
+<p>We observed that NYC Airbnb listing prices were heavily right-skewed, regardless of which borough they were situated in. While these prices are outliers, they should be included in this particular evaluation to consider all of the variability in prices. As such, we decided to conduct any model fitting to log(price).</p>
+<section id="analysis-1-location" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-1-location">Analysis 1: Location</h2>
+<p>We found that the median prices of listings are different in the five NYC boroughs. Naturally, we wanted to determine how much variability in listing prices location accounts for. Fitting a linear regression between log(price) and borough, we produce the following equation:</p>
+<div class="cell" data-hash="report_cache/html/linear-regression-boroughs_7a8c6237c2e2d75163d1fc28eb1c29a5">
+
+</div>
+<p><span class="math display">\[
+\begin{split}
+\widehat{log(Airbnb~listing~price)} = 4.4947394 + 0.2206278\times Brooklyn + 0.631\times Manhattan\\+ 0.0288866 \times Queens + 0.1409128 \times Staten~Island
+\end{split}
+\]</span></p>
+<p>Interpreting the intercept, we predict that a listing that is located in the Bronx will have a price of around <span class="math inline">\(e^{4.4947394} \approx \$89.54\)</span> per night.</p>
+<p>Interpreting the slopes:</p>
+<ul>
+<li><p>A listing in Brooklyn is expected to be <span class="math inline">\(e^{0.2206278} \approx \$1.25\)</span> higher per night compared to one in the Bronx, on average.</p></li>
+<li><p>A listing in Manhattan is expected to be <span class="math inline">\(e^{0.6314541} \approx \$1.88\)</span> higher per night compared to one in the Bronx, on average.</p></li>
+<li><p>A listing in Queens is expected to be <span class="math inline">\(e^{0.0288866} \approx \$1.03\)</span> higher per night compared to one in the Bronx, on average.</p></li>
+<li><p>And, a listing on Staten Island is expected to be <span class="math inline">\(e^{0.1409128} \approx \$1.15\)</span> higher per night compared to one in the Bronx, on average.</p></li>
+</ul>
+<p>In addition, we see that the R<sup>2</sup> value of this univariate linear regression model is 0.115. In other words, borough accounts for 11.5% of price variability. Because this is a low R<sup>2</sup> value, we performed the same regression on neighborhoods (i.e.&nbsp;Chelsea, Midtown, Williamsburg, etc.) for increased categorical coefficients, expecting to capture more variability on a regional basis.</p>
+<div class="cell" data-hash="report_cache/html/linear-regression-neighborhoods_767d67056e7cdce8c0e0a6f1f640573e">
+
+</div>
+<p>Due to the 221 different coefficients within this regression, showing the equation for this regression seem unreasonable. However, we can report that this model has an R<sup>2</sup> value of 0.253, which is expected.</p>
+<p>Comparing the adjusted R<sup>2</sup> values of both models, we can determine that the linear model considering neighborhoods is better for log(price) predictability. However, moving forward, we will use the variable for boroughs to account for the listing location as using neighborhood levels might cause overfitting.</p>
+</section>
+<section id="analysis-2-listing-characteristics" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-2-listing-characteristics">Analysis 2: Listing characteristics</h2>
+<section id="room-type-number-of-bedrooms-and-number-of-bathrooms" class="level3">
+<h3 class="anchored" data-anchor-id="room-type-number-of-bedrooms-and-number-of-bathrooms">Room type, number of bedrooms, and number of bathrooms</h3>
+<p>All data analysis on room type, number of bedrooms, and number of bathrooms can be found in the Appendix. However, to summarize:</p>
+<ul>
+<li><p>Most NYC Airbnb listings are “Entire home/apt” and “Private room” options. “Hotel room” is the priciest, followed by “Entire home/apt,” “Private room,” and “Shared room.”</p></li>
+<li><p>The distribution of the number of bedrooms is heavily right-skewed: most NYC Airbnb listings have one or two bedrooms. Generally, prices rise with the number of bedrooms.</p></li>
+<li><p>Similarly, the distribution of the number of bathrooms is heavily right-skewed, with most having one bathroom. Generally, prices rise with the number of bathrooms.</p></li>
+</ul>
+<div class="cell" data-hash="report_cache/html/linear-regression-room-type_e95a0cd150d0482ab2accc69fe13e4b1">
+
+</div>
+<div class="cell" data-hash="report_cache/html/linear-regression-bedroom-number_86a536f0a909f93f2cf35ea6deb22a57">
+
+</div>
+<div class="cell" data-hash="report_cache/html/linear-regression-bathroom-number_a6de06da591102aaad386e1aacf3b5c3">
+
+</div>
+<p>We fitted univariate linear regression models with all three variables to see how much variability in price is explained by each variable.</p>
+<div class="cell" data-hash="report_cache/html/linear-regression-all-listing-char_c4de26fd0086523ab31b1e1f3980132a">
+<div class="cell-output-display">
+
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Characteristic </th>
+   <th style="text-align:left;"> R-squared </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Room type </td>
+   <td style="text-align:left;"> 0.330 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Number of bathrooms </td>
+   <td style="text-align:left;"> 0.276 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Number of bedrooms </td>
+   <td style="text-align:left;"> 0.155 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>We see that room type has the highest R<sup>2</sup> value, which means it accounts for the most variability in price amongst the three listing characteristics. This suggests that room type might be one of the better variables to use to predict price - we will test this in our <a href="./report.html#fitting-a-multivariate-linear-regression-model">multivariate analysis</a>.</p>
+</section>
+<section id="extra-amenities" class="level3">
+<h3 class="anchored" data-anchor-id="extra-amenities">Extra amenities</h3>
+<p>Next, we want to look into how amenities affect Airbnb prices. On this <a href="https://www.airbnb.com/resources/hosting-homes/a/the-amenities-guests-want-25">page</a>, Airbnb Resource Center talks about some amenities guests look for, which include dining basics, coffee &amp; tea, and cleaning supplies among others. We want to test whether having extra amenities impacts price. In our analysis, we include the following as “extras”: air conditioning, heating, dishes and silverware, cooking basics, microwave, coffee maker, washer, and dryer. We first visualize the proportion of listings that have all the extra amenities included.</p>
+<div class="cell" data-layout-align="center" data-hash="report_cache/html/extra-amenities-borough-vis_506e24872aa572079da1d5496ed8a5ac">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="report_files/figure-html/extra-amenities-borough-vis-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that Staten Island and Brooklyn are the two boroughs with the highest proportion of listings that offer all the extra amenities. However, it is quite evident that the majority of listings do not have all the extras and that the distribution is quite similar between boroughs. In other words, any impact extra amenities have on price is likely to be borough-independent.</p>
+<p>To figure out if having all the extra amenities make a difference in price, we first group the listings by whether or not they have all the extra amenities or not and calculate the mean prices of each group. See <a href="./appendicies.html#appendix-2b-proportion-of-listings-with-extra-amenities-and-price-difference">Appendix 2B</a>.</p>
+<p>We indeed see that listings that offer all the extra amenities have a median price of $175, while listings that do not offer all the extra amenities have a median price of $120. To confirm that this is statistically significant, we can do a hypothesis testing. We will set a threshold value of 0.05.</p>
+<p><span class="math inline">\(H_0:\eta_{yes}-\eta_{no}=0\)</span>. The difference in the true median price of listings that offer all extra amenities and those that do not is zero.</p>
+<p><span class="math inline">\(H_A:\eta_{yes}-\eta_{no}&gt;0\)</span>. The difference in the true median price of listings that offer all extra amenities and those that do not is greater than zero.</p>
+<div class="cell" data-hash="report_cache/html/extra-hypothesis-testing_3fc972fee2d941f3dceb7e6731537d9f">
+
+</div>
+<p>We observe a p-value of 0, which is less than our threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis: the data provide convincing evidence that the median price of listings that include all the extra amenities are higher than the median price of listings that do not.</p>
+<p>How much higher of a price can a host expect if they include all the extra amenities? To figure this out, we can generate a 95% confidence interval to see how much of a price increase a host can expect if they were to include all the extra amenities.</p>
+<div class="cell" data-hash="report_cache/html/extra-confidence_f6e197a34e75f6452df4f97e268e642b">
+
+</div>
+<p>From our analysis, we are 95% confident that listings that include all the extra amenities will have median prices that are between $58 to $68 higher than those that do not include all the extra amenities. This is an important finding because it can help hosts increase their earnings by offering extra amenities.</p>
+<p>Let’s now run a linear regression between each amenity and price. By doing so, we can learn how much variability in price is explained by whether a listing has a certain amenity or not. We can also find out which amenities hosts should focus on having in their listings. See <a href="./appendicies.html#appendix-2c-additive-and-interactive-linear-regressions-with-respect-to-extra-amenities">Appendix 2C</a> for further analysis.</p>
+<div class="cell" data-hash="report_cache/html/extra-amenities-individual-regression_95c301e8245f9f7a5fd7228ebae9796c">
+
+</div>
+<div class="cell" data-hash="report_cache/html/extra-amenities-individual-regression-table_ebdc93bd2f4c62a78c8f5e8bacbe00f7">
+<div class="cell-output-display">
+
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Amenity </th>
+   <th style="text-align:left;"> R-squared </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Washer </td>
+   <td style="text-align:left;"> 0.04750 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dryer </td>
+   <td style="text-align:left;"> 0.04640 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Air conditioning </td>
+   <td style="text-align:left;"> 0.02640 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Coffee maker </td>
+   <td style="text-align:left;"> 0.02640 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Cooking basics </td>
+   <td style="text-align:left;"> 0.01150 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Dishes and silverware </td>
+   <td style="text-align:left;"> 0.00806 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Microwave </td>
+   <td style="text-align:left;"> 0.00509 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Heating </td>
+   <td style="text-align:left;"> 0.00150 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>We see that the top two amenities by R<sup>2</sup> value are the washer and dryer. We can infer that these two amenities affect the price the most out of the list of eight extra amenities we started with, irrespective of which borough the listing is located in. We will test this in our <a href="./report.html#fitting-a-multivariate-linear-regression-model">multivariate analysis</a>.</p>
+</section>
+<section id="work-from-home-criteria" class="level3">
+<h3 class="anchored" data-anchor-id="work-from-home-criteria">Work-from-home criteria</h3>
+<p>Upon analyzing the most frequently mentioned amenities in Airbnb listings in New York City, we observed that “dedicated workspace” appears in the top 20 amenities, which led us to think that work-from-home setups may impact price. In addition to a dedicated workspace, there are several other important amenities that Airbnb guests may be looking for in a WFH setup, including reliable high-speed internet, comfortable seating and good lighting, and a quiet environment. To identify listings that are WFH-appropriate, we established three criteria: 1) there is Wifi, 2) there is a dedicated workspace, and 3) the listing must be located in a quiet environment.</p>
+<div class="cell" data-layout-align="center" data-hash="report_cache/html/wfh-borough-vis_c2da34f31417df789902089dc1c94fb4">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="report_files/figure-html/wfh-borough-vis-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see that Staten Island and the Bronx are the two boroughs with the highest proportion of listings with all three criteria met. Otherwise, the distribution of proportions is quite similar between boroughs. In other words, any impact WFH amenities have on price is likely to be borough-independent.</p>
+<p>To figure out if satisfying all the WFH criteria makes a difference in price, we first group the listings by whether or not they satisfy all WFH criteria or not and calculated the median prices of each group. See <a href="./appendicies.html#appendix-2d-proportion-of-listings-with-wfh-amenities-and-price-difference">Appendix 2D</a>.</p>
+<p>We indeed see that listings that satisfy all WFH criteria have a median price of $130, while listings that do not offer all the extra amenities have a median price of $124. To confirm that this is statistically significant, we can do a hypothesis testing. We will set a threshold value of 0.05.</p>
+<p><span class="math inline">\(H_0:\eta_{satisfed}-\eta_{not~satisfed}=0\)</span>. The difference in the true median price of listings that satisfy all WFH criteria and those that do not is zero.</p>
+<p><span class="math inline">\(H_A:\eta_{satisfed}-\eta_{not~satisfed}&gt;0\)</span>. The difference in the true median price of listings that satisfy all WFH criteria and those that do not is greater than zero.</p>
+<div class="cell" data-hash="report_cache/html/wfh-hypothesis-testing_8e96d309fff08964e3f918c653524e14">
+
+</div>
+<p>We observe a p-value of 0.003, which is less than the threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis: the data provide convincing evidence that the median price of listings that satisfy all WFH criteria is higher than the median price of listings that do not.</p>
+<p>What we can do next is to calculate a 95% confidence interval to see how much of a price increase a host can expect if they were to include satisfy all WFH criteria.</p>
+<div class="cell" data-hash="report_cache/html/wfh-confidence_aacea74fdf5f6a5989bbd782696d86b4">
+
+</div>
+<p>From our analysis, we are 95% confident that listings that satisfy all WFH criteria will have median prices that are between $3 to $11 higher than those that do not include all the extra amenities. This might not be too significant because the price difference is relatively small and may not justify the additional cost and effort required for hosts to satisfy all the WFH criteria.</p>
+<p>Let’s now run a linear regression between each criterion and price. By doing so, we learn how much variability in price is explained by whether a listing satisfies a criterion. See <a href="./appendicies.html#appendix-2e-additive-and-interactive-linear-regressions-with-respect-to-work-from-home-amenities">Appendix 2E</a> for further analysis.</p>
+<div class="cell" data-hash="report_cache/html/wfh-amenities-individual-regression_1fe30b47317d06113f9fe968e8573119">
+
+</div>
+<div class="cell" data-hash="report_cache/html/wfh-amenities-individual-regression-table_d0a385f486f9feb64f0fc23c11a27948">
+<div class="cell-output-display">
+
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Criteria </th>
+   <th style="text-align:left;"> R-squared </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Dedicated workspace </td>
+   <td style="text-align:left;"> 0.01390 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Quiet environment </td>
+   <td style="text-align:left;"> 0.00177 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Wifi </td>
+   <td style="text-align:left;"> 0.00065 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>We see that the top criterion by R<sup>2</sup> value is dedicated workspace and the lowest criterion by R<sup>2</sup> is Wifi. One reason for this might be the fact that Wifi is no longer a luxury, but a necessity, and having Wifi is no longer a differentiating factor. We can infer that, if a host wants to prioritize satisfying a WFH criterion, having a dedicated workspace would be the one to prioritize as it affects price the most out of the list of three WFH criteria.</p>
+</section>
+</section>
+<section id="analysis-3-host-characteristics" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-3-host-characteristics">Analysis 3: Host characteristics</h2>
+<p>Another point of interest when looking at Airbnb data is to see how different characteristics of the host—i.e., if they are a super host, have their identity verified, their communication review rating, etc.— might influence the price. We can start by isolating these host-adjacent variables and identify any trends that might exist. See <a href="./appendicies.html#appendix-2f-trends-of-host-characteristics">Appendix 2F</a> for further analysis.</p>
+<div class="cell" data-hash="report_cache/html/host-df_09d6efd625ba9027eee01d4d2f8f5dd9">
+
+</div>
+<div class="cell" data-hash="report_cache/html/superhost-df_5deb2d1ac1c8d7afa27388dec4cbcd92">
+
+</div>
+<div class="cell" data-hash="report_cache/html/identity-df_96733eff5aaadb3587e8d44ead573883">
+
+</div>
+<div class="cell" data-hash="report_cache/html/cleanliness-df_aca1e0b5796a451a1a12dbb2fdc32e1b">
+
+</div>
+<div class="cell" data-hash="report_cache/html/communication-df_35facd77dc293b9134dd17c97dc91e85">
+
+</div>
+<div class="cell" data-hash="report_cache/html/response-df_95ebe721271c3cd5a230df9a3c57f07f">
+
+</div>
+<div class="cell" data-hash="report_cache/html/acceptance-df_74368efd2502429ca70b742cc29067f5">
+
+</div>
+<p>We observe that nearly 24% of hosts are considered super-hosts and 84% have their identity verified. In terms of review scores, nearly 95% of hosts have an accuracy rating between 4.0 and 5.0, 90% have a cleanliness review score between 4.0 and 5.0, 96% have a check-in review score between 4.0 and 5.0, and 96% have a communication review score between 4.0 and 5.0. As for a host’s response rate, about 65% of hosts reply within an hour.</p>
+<p>To get a better analysis of how these trends might drive listing prices, we can fit linear regression models across these six characteristics—i.e., <code>host_is_superhost</code>, <code>host_identity_verified</code>, <code>review_scores_cleanliness</code>, <code>review_scores_communication</code>, <code>host_response_time</code>, and <code>host_acceptance_rate</code>— to predict price. We will fit these models against logged price as well. After fitting these models, we get the following R<sup>2</sup> values:</p>
+<div class="cell" data-hash="report_cache/html/host-models_1d9f2bc91bbf0e397adf8ec6db0e6067">
+<div class="cell-output-display">
+
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Characteristic </th>
+   <th style="text-align:left;"> R-squared </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Host acceptance rate </td>
+   <td style="text-align:left;"> 0.06000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Review cleanliness rating </td>
+   <td style="text-align:left;"> 0.02290 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Superhost </td>
+   <td style="text-align:left;"> 0.01210 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Review communication rating </td>
+   <td style="text-align:left;"> 0.00448 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Identity is verified </td>
+   <td style="text-align:left;"> 0.00357 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Host response time </td>
+   <td style="text-align:left;"> 0.00129 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>With an R<sup>2</sup> value of 6% for <code>host_acceptance_rate</code> and 2.3% for <code>review_scores_cleanliness</code>, we can try hypothesis testing to determine the magnitude of predictability of these variables against price.</p>
+<p>We can now begin hypothesis testing. Because the R<sup>2</sup> values from the linear regression models for most host characteristics were marginal, we will focus our analysis on the <code>host_acceptance_rate</code> and <code>review_scores_cleanliness</code> models. We should note, however, that R<sup>2</sup> values solely do not provide total insight into the correlation between variables, but instead indicate the amount of variability explained.</p>
+<p>We can begin our hypothesis testing with <code>host_acceptance_rate</code>. By doing so, we can understand if the price is greater, on average, for listings under hosts with an acceptance rate of less than 51%. To test statistical significance, we will set a threshold value of 0.05.</p>
+<p><span class="math inline">\(H_0:\eta_{~acceptance~rate~&lt;~.51}-\eta_{~acceptance~rate~&gt;~.5}=0\)</span>. The median price of listings whose hosts have acceptance rates of less than 51% is the same as the median price of listings whose hosts have acceptance rates of greater than 50%.</p>
+<p><span class="math inline">\(H_A:\eta_{~acceptance~rate~&lt;~.51}-\eta_{~acceptance~rate~&gt;~.5}&gt;0\)</span>. The median price of listings whose hosts have acceptance rates of less than 51% is greater than the median price of listings whose hosts have acceptance rates of greater than 50%.</p>
+<div class="cell" data-hash="report_cache/html/acceptance-hypothesis_43129d0391e59397ed84045ba9d4097a">
+
+</div>
+<p>We observe a p-value of 0, which is less than the threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis. The data suggest that the median price of listings under hosts with an acceptance rate of less than 51%, on average, is higher than that of hosts with an acceptance rate above 50%. There may be several reasons for this. One reason might be that hosts with lower acceptance rates may be more experienced and have a better understanding of the market, or have better quality listings, enabling them to set higher prices for their listings.</p>
+<p>Using the same process, we can hypothesize the effect of <code>review_scores_cleanliness</code> on price. Namely, we want to see if the median price of listings for hosts with a cleanliness review score between 4.0 and 5.0 is higher than that of hosts with a review less than or equal to 4.0.</p>
+<p><span class="math inline">\(H_0:\eta_{~cleanliness~review~&gt;~4.0}-\eta_{~cleanliness~review~≤~4.0}=0\)</span>. The median price of listings whose hosts have cleanliness reviews greater than 4.0 is the same as the median price of listings whose hosts have cleanliness reviews less than 4.0.</p>
+<p><span class="math inline">\(H_A:\eta_{~cleanliness~review~&gt;~4.0}-\eta_{~cleanliness~review~≤~4.0}&gt;0\)</span>. The median price of listings whose hosts have cleanliness reviews greater than 4.0 is greater than the median price of listings whose hosts have cleanliness reviews less than 4.0.</p>
+<div class="cell" data-hash="report_cache/html/cleanliness-hypothesis_36a02c1a0594234805a89db6b7208ead">
+
+</div>
+<p>Similar to the first hypothesis testing, we also observe a p-value of 0, which is less than the set threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis. The data indicate that the median price of listings for hosts with a cleanliness review score between 4.0 and 5.0 is higher than that of hosts with a review less than or equal to 4.0.</p>
+</section>
+</section>
+<section id="evaluation-of-significance" class="level1">
+<h1>Evaluation of significance</h1>
+<section id="fitting-a-multivariate-linear-regression-model" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-a-multivariate-linear-regression-model">Fitting a multivariate linear regression model</h2>
+<p>We have looked at 22 variables spanning three broad categories (i.e.&nbsp;location, listing characteristics, and host characteristics). We now want to fit a multivariate linear regression model and see how much variability in price can be accounted for. As previously mentioned, the listing prices are heavily right-skewed, and thus, the price will be logged when performing the linear regression fitting.</p>
+<div class="cell" data-hash="report_cache/html/all-22-fit_e9205caf209d2bf067459fdd40517453">
+
+</div>
+<p>Fitting all 22 variables in a linear regression model to predict log(price), we observed an R<sup>2</sup> value of 0.608. The R-squared value of 0.608 suggests that the linear regression model explains 60.8% of the variability in the log of price based on the 22 predictor variables included in the model. This high degree of explanation can be useful for predicting prices in many applications, highlighting the value of the chosen predictor variables.</p>
+</section>
+<section id="performing-backward-elimination" class="level2">
+<h2 class="anchored" data-anchor-id="performing-backward-elimination">Performing backward elimination</h2>
+<p>The most complex model is not always the better choice. Hence, we decided to perform backward elimination on our multivariate linear regression model.</p>
+<p><a href="https://openintro-ims.netlify.app/model-mlr.html#model-selection">Backward elimination</a> is a feature selection technique where variables are iteratively removed from the full model based on their significance, starting with the least significant one (i.e.&nbsp;the variable with the highest p-value). The process continues until the model’s performance significantly degrades. This creates a final model with only the most significant predictors, making it easier to interpret, less complex, and less prone to overfitting. See <a href="./appendicies.html#appendix-2i-backward-elimination-to-isolate-significant-predictors">Appendix 2I</a> for the order of elimination.</p>
+<div class="cell" data-layout-align="center" data-hash="report_cache/html/backward-elimination-vis_b65c242c066136434c9eea22fcaafe88">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="report_files/figure-html/backward-elimination-vis-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As variables are eliminated from the model, adjusted R<sup>2</sup> decreases, which is expected as it reduces the model’s complexity. However, the first 14 eliminations maintained a relatively stable adjusted R<sup>2</sup>, indicating that the 14 variables eliminated did not significantly impact the model’s performance. The fifteenth elimination had a significant impact on adjusted R<sup>2</sup>, indicating that the final eight variables are significant in defining the model.</p>
+<p>We can then infer that the final eight variables, that being location, cleanliness score, microwave, washer, dryer, room type, number of bedrooms, and number of bathrooms, are most significant in predicting price. It is important to note that there are some limitations to our version of backward elimination:</p>
+<ul>
+<li><p>Order of variable elimination: In our case, we used p-value as our decision criterion. Different decision criteria, such as AIC or BIC, can be used instead, which may affect the order of variable elimination and the final model’s performance.</p></li>
+<li><p>Interaction effects: Our implementation of the multivariate regression model and backward elimination method only considers the individual impact of each variable and may overlook interaction effects between them, which could result in suboptimal model performance.</p></li>
+</ul>
+</section>
+</section>
+<section id="using-machine-learning-to-predict-price" class="level1">
+<h1>Using machine learning to predict price</h1>
+<div class="cell" data-hash="report_cache/html/train-test-split_3e44e29162bf6824ed9619abee3ebff7">
+
+</div>
+<div class="cell" data-hash="report_cache/html/null-model_44a47a20b4f1d4cb40e9615e34e6770c">
+
+</div>
+<p>In our attempt to create a price predictor model, we fitted a random forest model and the k-nearest neighbors (k-NN) model to our dataset. The original dataset was randomly split into a training set (75% of the data) and a testing set (25% of the data). 5-fold cross-validation was performed. Our null model produced an RMSE value of 0.693.</p>
+<div class="cell" data-hash="report_cache/html/rf-and-knn-models_def6d0a52573373928559eb8c6915383">
+
+</div>
+<div class="cell" data-hash="report_cache/html/rf-and-knn-best_b08d5347493198b38e2a44ebba4864bc">
+
+</div>
+<div class="cell" data-layout-align="center" data-hash="report_cache/html/rf-and-knn-results-vis_b327ef8c2d7ef01a8aa35ca8a8836279">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="report_files/figure-html/rf-and-knn-results-vis-1.png" class="img-fluid figure-img" width="384"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Both the random forest and k-NN models outperformed the null model, with RMSE values of 0.418 and 0.526 respectively. The random forest model had higher prediction accuracy than the k-NN model, but it is important to note that the RMSE values are on a logged price scale, which implies that the prices predicted by the random forest model are still, on average, 1.5 times higher than the actual prices.</p>
+<p>Although the RMSE values for the random forest and k-NN models suggest significant prediction errors, there are still ways to improve their performance. For instance, further hyperparameter tuning can be applied to optimize the models and other ML models like gradient-boosted decision trees and neural networks can be explored to determine if they can better capture the complexity of the data.</p>
+</section>
+<section id="interpretation-and-conclusions" class="level1">
+<h1>Interpretation and conclusions</h1>
+<p>By utilizing a combination of linear regressions, adjusted R<sup>2</sup> comparisons, and machine learning techniques, we were able to identify the key variables that appeared to significantly impact Airbnb Listing prices in NYC before March 6th, 2023.</p>
+<p>Our investigation revealed the most prominent of these factors are the listing’s <strong>location</strong>, <strong>cleanliness score</strong>, <strong>room type</strong>, <strong>the number of bedrooms and bathrooms</strong>, and the presence of a <strong>microwave</strong>, <strong>washer</strong>, and <strong>dryer</strong>. By taking these factors into account hosts in NYC can optimize their professional habits, listing qualities, and other pricing strategies to attract more guests and make more money. Similarly, travelers can make more informed decisions to find accommodations that suit their preferences and budget, resulting in a more satisfactory and efficient Airbnb experience for all parties involved.</p>
+</section>
+<section id="limitations" class="level1">
+<h1>Limitations</h1>
+<p>There are several limitations to our data and analysis:</p>
+<ul>
+<li><p>With our current dataset, we cannot do a time-series analysis on prices since the prices listed in the main dataset is valid for the one day the data was scraped. There are more .csv files on Inside Airbnb that we can download and merge to conduct a time-series analysis on prices in the future.</p></li>
+<li><p>We have done an analysis of Airbnb listings in NYC. How about listings in Chicago? San Diego? London? Trends we find in NYC may not be applicable in other cities. A future project might be to analyze a city similar to NYC and decide whether trends are similar.</p></li>
+<li><p>Our price analysis on Airbnb listings in NYC did not take into account the trends at the neighborhood level. For example, how extra amenities affect price may be different in Midtown compared to in Bedford-Stuyvesant. As such, a closer look into neighborhood trends can garner more accurate insights into the prices of individual listings and how they may be influenced by various factors in specific neighborhoods.</p></li>
+<li><p>Our analysis excludes relevant variables that could impact pricing, such as external market conditions and seasonal demand. Further analysis can be done at specific times (e.g.&nbsp;COVID disruption, Christmas and New Year’s).</p></li>
+</ul>
+</section>
+<section id="acknowledgements" class="level1">
+<h1>Acknowledgements</h1>
+<p>We thank the collaborators and partners at <a href="http://insideairbnb.com/">Inside Airbnb</a> for the comprehensive dataset.</p>
+<p>We also found the below resources helpful:</p>
+<ul>
+<li><a href="https://openintro-ims.netlify.app/index.html">Introduction to Modern Statistics, First Edition</a> by Mine Çetinkaya-Rundel and Johanna Hardin</li>
+<li><a href="https://www.tmwr.org/">Tidy Modeling with R</a> by Max Kuhn and Julia Silge</li>
+</ul>
+<p>We thank Professor Soltoff and the INFO 2950 course staff for all the help and support.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

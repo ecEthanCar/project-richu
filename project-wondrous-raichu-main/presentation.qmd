@@ -1,0 +1,238 @@
+---
+title: Analyzing Airbnb Data
+subtitle: What variables best predict the price of Airbnb listings in New York City?
+author: Wondrous Raichu <br> Boyang Li, Dave Tirtariyadi, Ethan Carlson,<br>Ribo Li, Tasnimul Taher
+date: 05/05/2023
+format: 
+  revealjs:
+    smaller: true
+    scrollable: true
+    transition: fade
+editor: visual
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+## Introduce the topic and motivation {background-color="white" background-image="https://1000logos.net/wp-content/uploads/2017/08/Airbnb-logo.jpg" background-size="250px" background-position="bottom 200px right 200px"}
+
+Airbnb has quickly **revolutionized** the travel and hospitality industry since its launch in 2008.
+
+With **over six million listings** worldwide, the company has disrupted traditional travel methods. In fact, research has shown that a 1% increase in Airbnb listings results in a 0.03% decrease in hotel room revenues in the top ten US cities (Dogru et al., 2019).
+
+As Airbnb continues to grow, its important to understand its implications on the market and its users, and one step towards that is to understand its **pricing mechanism**.
+
+```{r}
+library(tidyverse)
+library(skimr)
+library(jsonlite)
+library(dplyr)
+library(scales)
+library(tidymodels)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(stringr)
+
+theme_set(theme_minimal())
+set.seed(123)
+```
+
+```{r}
+# Load airbnb listings data (03/06/2023)
+airbnb_data <- read_csv("data/airbnb_data/03_06_2023_listings.csv", 
+    col_types = cols(price = col_number()))
+
+# Remove listings with price outliers
+airbnb_data <- airbnb_data |> 
+  filter(price < quantile(airbnb_data$price, 0.99))
+```
+
+## Introduce the data
+
+The main dataset we utilized comes from [Inside Airbnb](http://insideairbnb.com/get-the-data/), an open platform that provides data on Airbnb listings in different locations around the world.
+
+It contains information on over 42,000 listings in New York City as of March 6, 2023.
+
+Some variables in the dataset that we chose to look into: `price`, `neighbourhood_group`, `amenities`, `review_scores_rating`
+
+## Highlights from EDA {.smaller}
+
+::: columns
+::: {.column width="50%"}
+-   Manhattan and Brooklyn are top two boroughs for number of listings.
+
+```{r}
+df_location_price <- airbnb_data |>
+  select(
+    latitude, longitude, neighbourhood, neighbourhood_cleansed,
+    neighbourhood_group_cleansed, price
+  ) |>
+  mutate(numb_dollar = as.numeric(gsub("\\$|,", "", price)))
+
+df_location_price |> 
+  count(neighbourhood_group_cleansed) |> 
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, desc(n))) |> 
+  ggplot(aes(neighbourhood_group_cleansed, n, fill = neighbourhood_group_cleansed)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    x = "New York neighborhoods",
+    y = "Count",
+    title = "Priced Airbnb listing count within New York City borpughs"
+  ) +
+  scale_fill_viridis_d()
+```
+:::
+
+::: {.column width="50%"}
+-   Prices are heavily right-skewed.
+
+```{r}
+df_location_price |>
+  mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+  filter(numb_dollar < 500) |>
+  filter(neighbourhood_group_cleansed %in% c("Manhattan", "Brooklyn")) |> 
+  ggplot(aes(numb_dollar, fill = neighbourhood_group_cleansed)) +
+  geom_histogram(show.legend = FALSE, binwidth = 8) +
+  facet_wrap(facet = vars(neighbourhood_group_cleansed)) +
+  labs(
+    y = "Count",
+    x = "Listing prices",
+    title = "Airbnb listing prices by New York City boroughs"
+  ) +
+  scale_x_continuous(labels = label_dollar(scale_cut = cut_short_scale())) +
+  scale_fill_manual(values = c("#440154", "#3b528b"))
+```
+:::
+:::
+
+-   Top 20 amenities included "dedicated workspace."
+
+```{r}
+amenities_df <- read_csv("data/airbnb_data/amenities_data.csv")
+
+amenities_df |>
+  group_by(amenities) |>
+  count() |>
+  arrange(desc(n)) |>
+  head(20) |>
+  ggplot(mapping = aes(x = n, y = fct_reorder(amenities, n), fill = factor(n))) +
+  geom_col(show.legend = FALSE) +
+  labs(
+    x = "Count",
+    y = "Amenities",
+    title = "Top 20 amenities listed in NYC Airbnb lisings"
+  ) +
+  scale_fill_viridis_d(direction = -1)
+```
+
+## Location
+
+```{r, fig.width=3, fig.height=8, fig.align='right'}
+# 
+# df_location_price |>
+#   mutate(neighbourhood_group_cleansed = fct_reorder(neighbourhood_group_cleansed, numb_dollar, .desc = TRUE)) |>
+#   ggplot(aes(log(numb_dollar), neighbourhood_group_cleansed, fill = neighbourhood_group_cleansed)) +
+#   geom_boxplot(show.legend = FALSE) +
+#   theme_minimal() +
+#   labs(
+#     y = "New York neighborhoods",
+#     x = "(logarithmic) Listing prices",
+#     title = "Airbnb listing prices within New York neighborhoods"
+#   ) +
+#   scale_x_continuous(labels = label_dollar(scale_cut = cut_short_scale()))
+
+```
+
+[Predicting by NYC boroughs:]{.underline}
+
+$$
+\widehat{log(Airbnb~price)} = 4.495 + 0.221\times Brooklyn + 0.631\times Manhattan \\ + 0.029 \times Queens + 0.141 \times Staten~Island
+$$
+
+-   R-squared = 11.53%, adjusted-R-squared = 11.52%
+
+[Predicting by NYC neighborhoods:]{.underline}
+
+-   220 different neighborhoods recorded in NYC, many coefficients
+
+-   R-squared = 25.35%, adjusted-R-squared = 24.96%
+
+[Conclusion:]{.underline} - Linear models of neighborhoods accounts for more variabiliy in log(price) than boroughs. However, boroughs might be better when when we consider other variables in our future linear models, as using neighborhood levels might cause over-fitting.
+
+## Listing characteristics
+
+[Room type]{.underline}
+
+-   Entire home/apt and shared room options are most common.
+-   \[Highest\] Hotel room, Entire home/apt, Private room, Shared room \[Lowest\]
+-   R-squared value is 16.3%.
+
+```{r}
+airbnb_data |>
+  group_by(room_type) |>
+  ggplot(aes(x = room_type, y = price)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = quantile(airbnb_data$price, c(0, 0.9)),
+                     label = label_dollar()) +
+  labs(x = "Room Type",
+       y = "Price",
+       title = "Price vs. Room type") +
+  theme_minimal()
+```
+
+[Extra amenities]{.underline}
+
+-   Majority of listings **do not** have all the extras and distribution is similar between boroughs.
+-   Produced confidence interval: 95% confident that listings that include extra amenities will have median prices that are between \$50 to \$59 higher.
+
+```{r, fig.width=27, fig.height=13, fig.align='center'}
+extra_all <- read_csv("data/airbnb_data/extra_amenities.csv")
+extra_all <- extra_all |> drop_na() |> filter(price != 0)
+
+extra_all_neighbourhood <-
+  merge(extra_all, airbnb_data |>
+          select(id, price,
+                 neighbourhood_group_cleansed, neighbourhood_cleansed)) |>
+  select(id, all_extras, price,
+         neighbourhood_group_cleansed, neighbourhood_cleansed) |>
+  drop_na()
+
+extra_all_neighbourhood |> 
+  mutate(
+    neighbourhood_group_cleansed = fct_relevel(
+      .f = neighbourhood_group_cleansed,
+      "Queens", "Bronx", "Manhattan", "Brooklyn", "Staten Island"),
+    all_extras = factor(ifelse(all_extras, "Yes", "No"))
+  ) |> 
+  ggplot(aes(y = neighbourhood_group_cleansed, fill = all_extras)) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(labels = label_percent()) +
+  scale_fill_viridis_d(breaks = c("Yes", "No")) +
+  labs(
+    y = "",
+    x = "",
+    title = "Extra Amenities Breakdown: Proportions of Airbnb Listings in Different NYC Boroughs",
+    subtitle = "Staten Island and Brooklyn have the highest proportion of listings that offer all extra amenities",
+    fill = "Are extra amenities included?",
+    caption = '"Extra amenities" refer to air conditioning, heating, dishes and silverware, cooking basics, \nmicrowave, coffee maker, free street parking, washer, and dryer.'
+  ) + 
+  theme(legend.position = "bottom") +
+  theme(text = element_text(size=35))
+```
+
+## Conclusions + future work
+
+-   In total, we have 22 variables.
+-   Moving forward, we plan on fitting a multivariate regression model and utilizing backward elimination to remove insignificant predictors.
+
+```{r}
+top_ten_r_squared <- read_csv("data/airbnb_data/top_ten_r_squared.csv") |> head(5)
+
+kable(top_ten_r_squared, 
+             caption = "Top Five Predictor Variables Based on R-squared Values in Simple Linear Regression Model",
+             align = "l") |> 
+  kable_classic()
+```

@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Analyzing Airbnb data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">
+ <span class="menu-text">TEAM NAME</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./proposal.html">
+ <span class="menu-text">Proposal</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./eda.html" aria-current="page">
+ <span class="menu-text">Exploratory data analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pre-registration.html">
+ <span class="menu-text">Pre-registered analyses</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./presentation.html">
+ <span class="menu-text">Presentation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./report.html">
+ <span class="menu-text">Report</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./appendicies.html">
+ <span class="menu-text">Appendicies</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#research-questions" id="toc-research-questions" class="nav-link active" data-scroll-target="#research-questions">Research question(s)</a></li>
+  <li><a href="#data-collection-and-cleaning" id="toc-data-collection-and-cleaning" class="nav-link" data-scroll-target="#data-collection-and-cleaning">Data collection and cleaning</a>
+  <ul class="collapse">
+  <li><a href="#location" id="toc-location" class="nav-link" data-scroll-target="#location">Location</a></li>
+  <li><a href="#availability" id="toc-availability" class="nav-link" data-scroll-target="#availability">Availability</a></li>
+  <li><a href="#amenities" id="toc-amenities" class="nav-link" data-scroll-target="#amenities">Amenities</a></li>
+  <li><a href="#host-characteristics" id="toc-host-characteristics" class="nav-link" data-scroll-target="#host-characteristics">Host characteristics</a></li>
+  <li><a href="#listing-characteristics" id="toc-listing-characteristics" class="nav-link" data-scroll-target="#listing-characteristics">Listing characteristics</a></li>
+  </ul></li>
+  <li><a href="#data-description" id="toc-data-description" class="nav-link" data-scroll-target="#data-description">Data description</a></li>
+  <li><a href="#data-limitations" id="toc-data-limitations" class="nav-link" data-scroll-target="#data-limitations">Data limitations</a></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory data analysis</a>
+  <ul class="collapse">
+  <li><a href="#location-1" id="toc-location-1" class="nav-link" data-scroll-target="#location-1">Location</a></li>
+  <li><a href="#availability-1" id="toc-availability-1" class="nav-link" data-scroll-target="#availability-1">Availability</a></li>
+  <li><a href="#amenities-1" id="toc-amenities-1" class="nav-link" data-scroll-target="#amenities-1">Amenities</a></li>
+  <li><a href="#host-characteristics-1" id="toc-host-characteristics-1" class="nav-link" data-scroll-target="#host-characteristics-1">Host characteristics</a></li>
+  <li><a href="#listing-characteristics-1" id="toc-listing-characteristics-1" class="nav-link" data-scroll-target="#listing-characteristics-1">Listing characteristics</a></li>
+  </ul></li>
+  <li><a href="#questions-for-reviewers" id="toc-questions-for-reviewers" class="nav-link" data-scroll-target="#questions-for-reviewers">Questions for reviewers</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analyzing Airbnb data</h1>
+<p class="subtitle lead">Exploratory data analysis</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load airbnb listings data (03/06/2023)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>airbnb_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/airbnb_data/03_06_2023_listings.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview some rows</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(airbnb_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 75
+       id listing_url            scrape_id last_scraped source name  description
+    &lt;dbl&gt; &lt;chr&gt;                      &lt;dbl&gt; &lt;date&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      
+1 8.02e17 https://www.airbnb.co…   2.02e13 2023-03-06   city … A ho… The whole …
+2 7.66e17 https://www.airbnb.co…   2.02e13 2023-03-06   city … Broo… Take a bre…
+3 6.36e17 https://www.airbnb.co…   2.02e13 2023-03-06   city … Vill… Close to b…
+4 7.68e17 https://www.airbnb.co…   2.02e13 2023-03-06   city … 1-Be… Private ro…
+5 4.92e 7 https://www.airbnb.co…   2.02e13 2023-03-06   city … Get … Welcome to…
+6 5.21e 7 https://www.airbnb.co…   2.02e13 2023-03-06   city … Room… 房间内带有…
+# ℹ 68 more variables: neighborhood_overview &lt;chr&gt;, picture_url &lt;chr&gt;,
+#   host_id &lt;dbl&gt;, host_url &lt;chr&gt;, host_name &lt;chr&gt;, host_since &lt;date&gt;,
+#   host_location &lt;chr&gt;, host_about &lt;chr&gt;, host_response_time &lt;chr&gt;,
+#   host_response_rate &lt;chr&gt;, host_acceptance_rate &lt;chr&gt;,
+#   host_is_superhost &lt;lgl&gt;, host_thumbnail_url &lt;chr&gt;, host_picture_url &lt;chr&gt;,
+#   host_neighbourhood &lt;chr&gt;, host_listings_count &lt;dbl&gt;,
+#   host_total_listings_count &lt;dbl&gt;, host_verifications &lt;chr&gt;, …</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Skim through data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(airbnb_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">airbnb_data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">42931</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">logical</td>
+<td style="text-align: left;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">37</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 10%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">listing_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">42931</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">source</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">41409</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">description</td>
+<td style="text-align: right;">752</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">38022</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">neighborhood_overview</td>
+<td style="text-align: right;">18060</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">19579</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">picture_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">41814</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">27455</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_name</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9831</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_location</td>
+<td style="text-align: right;">9086</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1125</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_about</td>
+<td style="text-align: right;">19677</td>
+<td style="text-align: right;">0.54</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14251</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_response_time</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_response_rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_acceptance_rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_thumbnail_url</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">106</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">26859</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_picture_url</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">26859</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_neighbourhood</td>
+<td style="text-align: right;">8650</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">550</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_verifications</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">neighbourhood</td>
+<td style="text-align: right;">18060</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">187</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">neighbourhood_cleansed</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">223</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">neighbourhood_group_cleansed</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">property_type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">room_type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bathrooms_text</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">amenities</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2212</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">36300</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">price</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1089</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">license</td>
+<td style="text-align: right;">42930</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">last_scraped</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: left;">2023-03-07</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_since</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2008-08-11</td>
+<td style="text-align: left;">2023-03-04</td>
+<td style="text-align: left;">2016-05-29</td>
+<td style="text-align: right;">4747</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calendar_last_scraped</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: left;">2023-03-07</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">first_review</td>
+<td style="text-align: right;">10304</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: left;">2009-04-13</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: left;">2020-02-11</td>
+<td style="text-align: right;">3843</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">last_review</td>
+<td style="text-align: right;">10304</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: left;">2011-05-12</td>
+<td style="text-align: left;">2023-03-06</td>
+<td style="text-align: left;">2022-11-23</td>
+<td style="text-align: right;">2795</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 6%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: left;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">host_is_superhost</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: left;">FAL: 33487, TRU: 9419</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_has_profile_pic</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: left;">TRU: 42131, FAL: 795</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_identity_verified</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: left;">TRU: 36675, FAL: 6251</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bathrooms</td>
+<td style="text-align: right;">42931</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calendar_updated</td>
+<td style="text-align: right;">42931</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">has_availability</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: left;">TRU: 36660, FAL: 6271</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">instant_bookable</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.21</td>
+<td style="text-align: left;">FAL: 33908, TRU: 9023</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.222772e+17</td>
+<td style="text-align: right;">3.344213e+17</td>
+<td style="text-align: right;">2.595000e+03</td>
+<td style="text-align: right;">1.940474e+07</td>
+<td style="text-align: right;">4.337482e+07</td>
+<td style="text-align: right;">6.305016e+17</td>
+<td style="text-align: right;">8.404660e+17</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">scrape_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: right;">2.023031e+13</td>
+<td style="text-align: left;">▁▁▇▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.516012e+08</td>
+<td style="text-align: right;">1.621301e+08</td>
+<td style="text-align: right;">1.678000e+03</td>
+<td style="text-align: right;">1.608533e+07</td>
+<td style="text-align: right;">7.433812e+07</td>
+<td style="text-align: right;">2.680692e+08</td>
+<td style="text-align: right;">5.038729e+08</td>
+<td style="text-align: left;">▇▂▂▂▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_listings_count</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.077900e+02</td>
+<td style="text-align: right;">5.816300e+02</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">4.774000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_total_listings_count</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.558600e+02</td>
+<td style="text-align: right;">7.997100e+02</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">3.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">8.298000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">latitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.073000e+01</td>
+<td style="text-align: right;">6.000000e-02</td>
+<td style="text-align: right;">4.050000e+01</td>
+<td style="text-align: right;">4.069000e+01</td>
+<td style="text-align: right;">4.072000e+01</td>
+<td style="text-align: right;">4.076000e+01</td>
+<td style="text-align: right;">4.091000e+01</td>
+<td style="text-align: left;">▁▂▇▅▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">longitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">-7.394000e+01</td>
+<td style="text-align: right;">6.000000e-02</td>
+<td style="text-align: right;">-7.425000e+01</td>
+<td style="text-align: right;">-7.398000e+01</td>
+<td style="text-align: right;">-7.395000e+01</td>
+<td style="text-align: right;">-7.392000e+01</td>
+<td style="text-align: right;">-7.371000e+01</td>
+<td style="text-align: left;">▁▁▇▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">accommodates</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.970000e+00</td>
+<td style="text-align: right;">2.120000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">4.000000e+00</td>
+<td style="text-align: right;">1.600000e+01</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bedrooms</td>
+<td style="text-align: right;">3874</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">1.400000e+00</td>
+<td style="text-align: right;">7.900000e-01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.600000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">beds</td>
+<td style="text-align: right;">929</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">1.660000e+00</td>
+<td style="text-align: right;">1.170000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">4.200000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_nights</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.811000e+01</td>
+<td style="text-align: right;">2.746000e+01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_nights</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5.152210e+04</td>
+<td style="text-align: right;">1.036530e+07</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">6.000000e+01</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_minimum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.797000e+01</td>
+<td style="text-align: right;">2.980000e+01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_minimum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.313000e+01</td>
+<td style="text-align: right;">4.783000e+01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.000000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_maximum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.252610e+06</td>
+<td style="text-align: right;">5.181612e+07</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">3.600000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_maximum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.503582e+06</td>
+<td style="text-align: right;">7.325757e+07</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_nights_avg_ntm</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.237000e+01</td>
+<td style="text-align: right;">4.616000e+01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">9.300000e+00</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_nights_avg_ntm</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.571531e+06</td>
+<td style="text-align: right;">5.604246e+07</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">availability_30</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9.760000e+00</td>
+<td style="text-align: right;">1.186000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">3.000000e+00</td>
+<td style="text-align: right;">2.200000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: left;">▇▁▁▁▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">availability_60</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.113000e+01</td>
+<td style="text-align: right;">2.368000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">9.000000e+00</td>
+<td style="text-align: right;">4.500000e+01</td>
+<td style="text-align: right;">6.000000e+01</td>
+<td style="text-align: left;">▇▁▂▁▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">availability_90</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.368000e+01</td>
+<td style="text-align: right;">3.569000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.000000e+01</td>
+<td style="text-align: right;">7.000000e+01</td>
+<td style="text-align: right;">9.000000e+01</td>
+<td style="text-align: left;">▇▂▁▂▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">availability_365</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.402600e+02</td>
+<td style="text-align: right;">1.420000e+02</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">8.900000e+01</td>
+<td style="text-align: right;">2.890000e+02</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: left;">▇▂▂▂▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">number_of_reviews</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.586000e+01</td>
+<td style="text-align: right;">5.662000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">2.400000e+01</td>
+<td style="text-align: right;">1.842000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">number_of_reviews_ltm</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">7.740000e+00</td>
+<td style="text-align: right;">1.829000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">1.093000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">number_of_reviews_l30d</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.300000e-01</td>
+<td style="text-align: right;">1.690000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.420000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_rating</td>
+<td style="text-align: right;">10304</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.640000e+00</td>
+<td style="text-align: right;">7.200000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.600000e+00</td>
+<td style="text-align: right;">4.830000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_accuracy</td>
+<td style="text-align: right;">10739</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.750000e+00</td>
+<td style="text-align: right;">4.700000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.700000e+00</td>
+<td style="text-align: right;">4.890000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_cleanliness</td>
+<td style="text-align: right;">10729</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.640000e+00</td>
+<td style="text-align: right;">5.400000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.500000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_checkin</td>
+<td style="text-align: right;">10743</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.810000e+00</td>
+<td style="text-align: right;">4.200000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">4.950000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_communication</td>
+<td style="text-align: right;">10734</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.810000e+00</td>
+<td style="text-align: right;">4.400000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">4.960000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_location</td>
+<td style="text-align: right;">10746</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.730000e+00</td>
+<td style="text-align: right;">4.200000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.640000e+00</td>
+<td style="text-align: right;">4.850000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_value</td>
+<td style="text-align: right;">10746</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">4.640000e+00</td>
+<td style="text-align: right;">5.000000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">4.530000e+00</td>
+<td style="text-align: right;">4.770000e+00</td>
+<td style="text-align: right;">4.960000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calculated_host_listings_count</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.405000e+01</td>
+<td style="text-align: right;">8.087000e+01</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">4.000000e+00</td>
+<td style="text-align: right;">5.260000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">calculated_host_listings_count_entire_homes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.295000e+01</td>
+<td style="text-align: right;">6.328000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">5.260000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calculated_host_listings_count_private_rooms</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.098000e+01</td>
+<td style="text-align: right;">4.720000e+01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">3.940000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">calculated_host_listings_count_shared_rooms</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6.000000e-02</td>
+<td style="text-align: right;">6.000000e-01</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.300000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">reviews_per_month</td>
+<td style="text-align: right;">10304</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">1.170000e+00</td>
+<td style="text-align: right;">1.790000e+00</td>
+<td style="text-align: right;">1.000000e-02</td>
+<td style="text-align: right;">1.400000e-01</td>
+<td style="text-align: right;">5.200000e-01</td>
+<td style="text-align: right;">1.670000e+00</td>
+<td style="text-align: right;">8.661000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="research-questions" class="level1">
+<h1>Research question(s)</h1>
+<p>How does Airbnb listing prices depend on rating of listing, location of listing, amenities included in the listing, and host response time?</p>
+<p>How do characteristics (i.e., ratings and descriptions) of listings and of hosts affect the prices of listings?</p>
+<p>What are the most popular neighborhoods for Airbnb listings and how does this popularity vary by listing type and price?</p>
+</section>
+<section id="data-collection-and-cleaning" class="level1">
+<h1>Data collection and cleaning</h1>
+<p>We see from <code>skim</code> that there are several variables that have missing values, including <code>neighborhood_overview</code>, <code>host_location</code>, <code>host_about</code> and <code>host_neighbourhood</code> among others. Although we want to look at host characteristics, we believe that the columns <code>host_location</code> and <code>host_neighbourhood</code> will not be of too much use in our analysis, so we can ignore it. For other columns, we will appropriately deal with missing values.</p>
+<p>Furthermore, we recognize that <code>first_review</code> and <code>last_review</code> both have 10,304 missing values. This probably means that 10,304 listings don’t have any reviews. It might be interesting to subset these listings to see what factors affect the listing prices of Airbnb listings that do not have reviews.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>no_reviews <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(first_review))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>Price</code> is not numeric in the dataset, so we change the format to numeric.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>airbnb_data <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price =</span> <span class="fu">parse_number</span>(price))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Below we outline how we cleaned and parsed through the main dataset <code>airbnb_data</code> to look at several major components: location, availability, amenities, host characteristics, and listing characteristics.</p>
+<section id="location" class="level2">
+<h2 class="anchored" data-anchor-id="location">Location</h2>
+<p>For my data cleaning, I have chosen to filter out all columns related to the location of each Airbnb listing, including its latitude, longitude, and neighborhood located in NYC among other things. While it was clear from the start that I would likely not use most of the variable I selected, I believe that keeping in mind these other forms of listing location could be useful down the line. I also obviously included the price of said listings, mutating a new column that make the price into a raw number instead of a character string.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data cleaning: main cleaning was $ signs and selecting necessary variables</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_location_price <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    latitude, longitude, neighbourhood, neighbourhood_cleansed,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    neighbourhood_group_cleansed, price</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">numb_dollar =</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">$|,"</span>, <span class="st">""</span>, price)))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>df_location_price</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 42,931 × 7
+   latitude longitude neighbourhood                      neighbourhood_cleansed
+      &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;                              &lt;chr&gt;                 
+ 1     40.6     -73.9 &lt;NA&gt;                               Canarsie              
+ 2     40.6     -73.9 &lt;NA&gt;                               Canarsie              
+ 3     40.5     -74.3 &lt;NA&gt;                               Tottenville           
+ 4     40.6     -74.0 &lt;NA&gt;                               Sheepshead Bay        
+ 5     40.9     -73.9 The Bronx, New York, United States North Riverdale       
+ 6     40.8     -73.8 Queens, New York, United States    Flushing              
+ 7     40.8     -73.8 &lt;NA&gt;                               Whitestone            
+ 8     40.5     -74.2 &lt;NA&gt;                               Prince's Bay          
+ 9     40.7     -73.8 &lt;NA&gt;                               Richmond Hill         
+10     40.9     -73.9 RIVERDALE, New York, United States Kingsbridge           
+# ℹ 42,921 more rows
+# ℹ 3 more variables: neighbourhood_group_cleansed &lt;chr&gt;, price &lt;dbl&gt;,
+#   numb_dollar &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="availability" class="level2">
+<h2 class="anchored" data-anchor-id="availability">Availability</h2>
+<p>In our dataset, we have several columns that talk about the availability of Airbnb listings. availability_* tells us the availability of the listing * days in the future as determined by the calendar. We should keep in mind that a listing may not be available because it has been booked by a guest or blocked by the host.</p>
+<p>It is interesting to extract the month and year for the availability for analysis on the availability.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract month and year from last_review column</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>airbnb_data_availability <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month_year =</span> <span class="fu">floor_date</span>(<span class="fu">as.Date</span>(last_review), <span class="at">unit =</span> <span class="st">"month"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price, availability_30, availability_60, availability_90, availability_365, month_year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="amenities" class="level2">
+<h2 class="anchored" data-anchor-id="amenities">Amenities</h2>
+<p>A major issue with <code>amenities</code> is that it is stored as a character list. We need to parse and clean this so that we can do more analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>amenities_df <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create subset of Airbnb data pertaining to amenities</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, amenities) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Replace any occurrences of square brackets with empty string</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">amenities =</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">[|</span><span class="sc">\\</span><span class="st">]"</span>, <span class="st">""</span>, amenities)) <span class="sc">|&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Split the list by comma and make separate rows</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate_rows</span>(amenities, <span class="at">sep =</span> <span class="st">", "</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Unnest the list</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(amenities)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>amenities_df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,121,291 × 2
+        id amenities                              
+     &lt;dbl&gt; &lt;chr&gt;                                  
+ 1 8.02e17 "\"50\\\" TV\""                        
+ 2 8.02e17 "\"Bathtub\""                          
+ 3 8.02e17 "\"Microwave\""                        
+ 4 8.02e17 "\"Free driveway parking on premises\""
+ 5 8.02e17 "\"Laundromat nearby\""                
+ 6 8.02e17 "\"Kitchen\""                          
+ 7 8.02e17 "\"Refrigerator\""                     
+ 8 8.02e17 "\"Central air conditioning\""         
+ 9 8.02e17 "\"Smoke alarm\""                      
+10 8.02e17 "\"Central heating\""                  
+# ℹ 1,121,281 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save a csv copy for future purposes</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># write.csv(amenities_df, "data/airbnb_data/amenities_data.csv", row.names=FALSE)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now that we have parsed the amenities out of its list format, there is another problem. How the amenities are reported in the dataset is dependent on how the host described their list of amenities. In other words, there is no standardization on how amenities are reported. That is why we have multiple variations of the same amenity. For example, we have several variations of “HDTV” depending on the size of the HDTV and the applications (Amazon Prime, Netflix, etc.) that come with it among other factors. Similarly, many listings have “fast wifi” listed as an amenity, but we see variations depending on the speed listed.</p>
+<p>Is there a way to consolidate the different variations? One way is to conduct partial matching with some desired amenity (the below code looks for “fast wifi”) and create a new column to store a boolean that describes whether the listing has that desired amenity or not.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fast_wifi <span class="ot">&lt;-</span> amenities_df <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fast_wifi =</span> <span class="fu">str_detect</span>(amenities, <span class="fu">regex</span>(<span class="st">"fast wifi"</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>fast_wifi</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,121,291 × 3
+        id amenities                               fast_wifi
+     &lt;dbl&gt; &lt;chr&gt;                                   &lt;lgl&gt;    
+ 1 8.02e17 "\"50\\\" TV\""                         FALSE    
+ 2 8.02e17 "\"Bathtub\""                           FALSE    
+ 3 8.02e17 "\"Microwave\""                         FALSE    
+ 4 8.02e17 "\"Free driveway parking on premises\"" FALSE    
+ 5 8.02e17 "\"Laundromat nearby\""                 FALSE    
+ 6 8.02e17 "\"Kitchen\""                           FALSE    
+ 7 8.02e17 "\"Refrigerator\""                      FALSE    
+ 8 8.02e17 "\"Central air conditioning\""          FALSE    
+ 9 8.02e17 "\"Smoke alarm\""                       FALSE    
+10 8.02e17 "\"Central heating\""                   FALSE    
+# ℹ 1,121,281 more rows</code></pre>
+</div>
+</div>
+<p>Can we make this process somewhat more reproducible and flexible? What if we want to look at other amenities? Below, we check if a listing has “wifi,” “parking,” “dryer”, “washer,” and “kitchen” listed in their list of amenities. Certainly, this list of amenities can be changed depending on our research scope later.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create character vector of amenities of interest</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>essentials <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"wifi"</span>, <span class="st">"parking"</span>, <span class="st">"dryer"</span>, <span class="st">"washer"</span>, <span class="st">"kitchen"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Duplicate amenities_df</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>essential_amenities_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(amenities_df)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterate over amenities in essentials</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (amenity <span class="cf">in</span> essentials) {</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  essential_amenities_df <span class="ot">&lt;-</span> essential_amenities_df <span class="sc">|&gt;</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create boolean column</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="sc">!!</span><span class="at">amenity :=</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        essential_amenities_df<span class="sc">$</span>amenities,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">regex</span>(amenity, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>      ))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by listing</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>listing_esential_amenitites <span class="ot">&lt;-</span> essential_amenities_df <span class="sc">|&gt;</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">wifi =</span> <span class="fu">any</span>(wifi),</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">parking =</span> <span class="fu">any</span>(parking),</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">dryer =</span> <span class="fu">any</span>(dryer),</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">washer =</span> <span class="fu">any</span>(washer),</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">kitchen =</span> <span class="fu">any</span>(kitchen)</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>id,</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"amenities"</span>,</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"listed"</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>listing_esential_amenitites</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 214,655 × 3
+      id amenities listed
+   &lt;dbl&gt; &lt;chr&gt;     &lt;lgl&gt; 
+ 1  2595 wifi      TRUE  
+ 2  2595 parking   TRUE  
+ 3  2595 dryer     TRUE  
+ 4  2595 washer    FALSE 
+ 5  2595 kitchen   TRUE  
+ 6  5121 wifi      TRUE  
+ 7  5121 parking   FALSE 
+ 8  5121 dryer     FALSE 
+ 9  5121 washer    FALSE 
+10  5121 kitchen   TRUE  
+# ℹ 214,645 more rows</code></pre>
+</div>
+</div>
+<p>Since we have the listing identifier in <code>listing_esential_amenitites</code>, we can merge <code>listing_esential_amenitites</code> with our main dataset to gather information on price and learn about how amenities affect listing prices.</p>
+</section>
+<section id="host-characteristics" class="level2">
+<h2 class="anchored" data-anchor-id="host-characteristics">Host characteristics</h2>
+<p>Another possible area of inquiry within this dataset is looking at a variety of host characteristics and how they possibly affect the price of a listing. The first step in doing so is making a dataframe with all the necessary yet pertinent variables that have to do with a host such as if they are a super host, their acceptance rate, etc.</p>
+<p>Since a host has many listings detailed in the main dataset, we often use the <code>distinct()</code> function to remove repeated <code>host_id</code>s when necessary; if <code>price</code> is a variable for these instances, we average the price of all listings per each individual host.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataframe with all variables to do with host characteristics</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>host_char <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    host_id,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    host_is_superhost,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    host_identity_verified,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    host_has_profile_pic,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    host_since,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    host_response_time,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    host_response_rate,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    host_acceptance_rate,</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    host_listings_count,</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    review_scores_communication,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    price</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>host_char</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 42,931 × 11
+     host_id host_is_superhost host_identity_verified host_has_profile_pic
+       &lt;dbl&gt; &lt;lgl&gt;             &lt;lgl&gt;                  &lt;lgl&gt;               
+ 1 495455523 FALSE             FALSE                  TRUE                
+ 2 488760226 FALSE             TRUE                   TRUE                
+ 3 461263600 FALSE             FALSE                  FALSE               
+ 4 475699129 TRUE              TRUE                   TRUE                
+ 5 397288055 FALSE             TRUE                   TRUE                
+ 6 239139334 FALSE             TRUE                   TRUE                
+ 7 426682883 FALSE             FALSE                  FALSE               
+ 8  77290831 FALSE             TRUE                   TRUE                
+ 9  51426218 FALSE             TRUE                   TRUE                
+10  21444167 TRUE              TRUE                   TRUE                
+# ℹ 42,921 more rows
+# ℹ 7 more variables: host_since &lt;date&gt;, host_response_time &lt;chr&gt;,
+#   host_response_rate &lt;chr&gt;, host_acceptance_rate &lt;chr&gt;,
+#   host_listings_count &lt;dbl&gt;, review_scores_communication &lt;dbl&gt;, price &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>A subset of the aforementioned dataframe has to do with the number of listings a host has and how that might impact the average price of a host’s listings. To do so, we need to select <code>host_listings_count</code> and the <code>price</code>. We make sure to omit any <code>NA</code> values for visual easability purposes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data frame with each host, their total num of listings</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># and their average price</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>host_list <span class="ot">&lt;-</span> host_char <span class="sc">|&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(host_id, host_listings_count, price) <span class="sc">|&gt;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(host_id) <span class="sc">|&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">avg_price_host =</span> <span class="fu">mean</span>(price)) <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(host_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>(host_listings_count)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>host_list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 27,450 × 4
+# Groups:   host_id [27,450]
+     host_id host_listings_count price avg_price_host
+       &lt;dbl&gt;               &lt;dbl&gt; &lt;dbl&gt;          &lt;dbl&gt;
+ 1 495455523                   1   143          143  
+ 2 488760226                   2    30           50  
+ 3 461263600                   1   157          157  
+ 4 475699129                   7    89           75.7
+ 5 397288055                   1   125          125  
+ 6 239139334                   3    63           59.7
+ 7 426682883                   1    82           82  
+ 8  77290831                   1   118          118  
+ 9  51426218                  10    49          146. 
+10  21444167                   2   115          104. 
+# ℹ 27,440 more rows</code></pre>
+</div>
+</div>
+<p>Another potential aspect to look at is whether certain host attributes can be used as a predictive measure in determining if a host is a super host. For this, we can look at the variables <code>host_is_superhost</code>, <code>host_identity_verified</code>, and <code>host_has_profile_pic</code>. Furthermore, for future possible modeling methods, changing some variables to a quantifiable number is necessary, which can be seen below:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data frame with each host, if they are a super host,</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># if they have a profile picture, and if their identity is verified</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>superhost <span class="ot">&lt;-</span> host_char <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    host_id,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    host_is_superhost,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    host_identity_verified,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    host_has_profile_pic</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(host_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">host_is_superhost =</span> <span class="fu">if_else</span>(host_is_superhost <span class="sc">==</span> <span class="st">"TRUE"</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">host_identity_verified =</span> <span class="fu">if_else</span>(host_identity_verified <span class="sc">==</span> <span class="st">"TRUE"</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">host_has_profile_pic =</span> <span class="fu">if_else</span>(host_has_profile_pic <span class="sc">==</span> <span class="st">"TRUE"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>superhost</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 27,455 × 4
+     host_id host_is_superhost host_identity_verified host_has_profile_pic
+       &lt;dbl&gt;             &lt;dbl&gt;                  &lt;dbl&gt;                &lt;dbl&gt;
+ 1 495455523                 0                      0                    1
+ 2 488760226                 0                      1                    1
+ 3 461263600                 0                      0                    0
+ 4 475699129                 1                      1                    1
+ 5 397288055                 0                      1                    1
+ 6 239139334                 0                      1                    1
+ 7 426682883                 0                      0                    0
+ 8  77290831                 0                      1                    1
+ 9  51426218                 0                      1                    1
+10  21444167                 1                      1                    1
+# ℹ 27,445 more rows</code></pre>
+</div>
+</div>
+<p>Within the main Airbnb dataframe is a variable called <code>review_scores_communication</code>. This can be interesting to use against <code>price</code> as consumers on the Airbnb website definitely want to know how communicative a host is when choosing a listing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data frame with host's communication rating and price</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>rating <span class="ot">&lt;-</span> host_char <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    host_id,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    review_scores_communication,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    price</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Find average price of listings per host</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>host_rating <span class="ot">&lt;-</span> host_char <span class="sc">|&gt;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(host_id,</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>         review_scores_communication,</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>         price) <span class="sc">|&gt;</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Find average price of listings per host</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(host_id) <span class="sc">|&gt;</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price =</span> <span class="fu">mean</span>(price)) <span class="sc">|&gt;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Remove repeat of same hosts</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(host_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>(rating)</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>host_rating</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 21,412 × 3
+# Groups:   host_id [21,412]
+     host_id review_scores_communication price
+       &lt;dbl&gt;                       &lt;dbl&gt; &lt;dbl&gt;
+ 1 488760226                        4.92  50  
+ 2 475699129                        5     75.7
+ 3 397288055                        4.88 125  
+ 4 239139334                        4.78  59.7
+ 5  77290831                        5    118  
+ 6  51426218                        5    146. 
+ 7  21444167                        4.93 104. 
+ 8 486718434                        5    179  
+ 9 479109924                        4.82 172  
+10 179951095                        5     94  
+# ℹ 21,402 more rows</code></pre>
+</div>
+</div>
+<p>One last area to look, at in tandem with host characteristics, might have to do with a host’s acceptance rate. Here we select <code>host_acceptance_rate</code>, <code>price</code>, and <code>host_is_superhost</code> to see how acceptance rate varies against price and how it might be influenced by them being a super host or not.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data frame with host's acceptance rate, price, and if they</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># are a super host</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>accept <span class="ot">&lt;-</span> host_char <span class="sc">|&gt;</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    host_id,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    host_acceptance_rate,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    price,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    host_is_superhost</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(host_id) <span class="sc">|&gt;</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">price =</span> <span class="fu">mean</span>(price)) <span class="sc">|&gt;</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(host_id, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Make character N/A a logical NA value</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>accept[accept <span class="sc">==</span> <span class="st">"N/A"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Omit NA values</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>accept <span class="ot">&lt;-</span> accept <span class="sc">|&gt;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>(host_acceptance_rate) <span class="sc">|&gt;</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Change acceptance rate to numbers</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">host_acceptance_rate =</span> <span class="fu">substr</span>(host_acceptance_rate, <span class="dv">0</span>, <span class="fu">nchar</span>(host_acceptance_rate)),</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">host_acceptance_rate =</span> <span class="fu">parse_number</span>(host_acceptance_rate)</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Change super host column to categorical variable</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">host_is_superhost =</span> <span class="fu">if_else</span>(host_is_superhost <span class="sc">==</span> <span class="st">"TRUE"</span>, <span class="st">"Superhosts"</span>, <span class="st">"Not Superhost"</span>))</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot listings versus price dataset</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(host_list,</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> avg_price_host, <span class="at">y =</span> host_listings_count)</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(host_list<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>))) <span class="sc">+</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"# of listings vs average price"</span>,</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"# of listings (per host)"</span></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3776 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/host_acceptance-df-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot host rating and price of listings</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rating,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">y =</span> review_scores_communication)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(rating<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>))) <span class="sc">+</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Host communication rating vs price"</span>,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Host acceptance rate"</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 14370 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/host_acceptance-df-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot acceptance rate and price and facet by super hosts</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(accept,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">y =</span> host_acceptance_rate)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="dv">15</span>, <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(host_is_superhost)) <span class="sc">+</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">quantile</span>(accept<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>)),</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">label_dollar</span>()</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>(<span class="at">scale =</span> .<span class="dv">001</span>)) <span class="sc">+</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Host acceptance rate vs price"</span>,</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Host acceptance rate"</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2392 rows containing missing values (`position_stack()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `position_stack()` requires non-overlapping x intervals
+`position_stack()` requires non-overlapping x intervals</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 539 rows containing missing values (`geom_col()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/host_acceptance-df-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="listing-characteristics" class="level2">
+<h2 class="anchored" data-anchor-id="listing-characteristics">Listing characteristics</h2>
+<p>There are a few variables that characterize a listing in our main dataset. To clean and parse the data more easily, we create smaller subsets of the data. Below we create two dataframes: 1) price and room type and 2) price and ratings. Not all listings have a rating, so we also omit observations with <code>NA</code> for rating. Similarily, not all listings have a value for <code>bedrooms</code>. This might be because there are studio apartments and other forms of non-traditional accommodations listed in Airbnb.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe for price and room type</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>room_type_price <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price, room_type)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe for price and ratings</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>ratings_price <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price, review_scores_rating) <span class="sc">|&gt;</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe for price and number of bedrooms</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>bedroom_price <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price, bedrooms) <span class="sc">|&gt;</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="data-description" class="level1">
+<h1>Data description</h1>
+<p>The <code>airbnb_data</code> dataset comes from Inside Airbnb (http://insideairbnb.com/get-the-data/), an open platform that provides data on Airbnb listings in different locations around the world.</p>
+<p>The objective of Inside Airbnb is to empower communities by providing them with information and data regarding the impact of Airbnb on residential areas. Their mission is to enable communities to make informed decisions and have control over the practice of renting homes to tourists, with the ultimate goal of achieving a vision where data is used to shape this industry.</p>
+<p>The data gives NYC listings from the first quarter in 2023. It is aggregated through Airbnb’s public information on their website and shows all listings from that respective quarter at the particular time of publication (i.e., for this particular dataset, March 6, 2023).</p>
+<p>In terms of what processes might have influenced what data was observed and what was not, there is not much, if any. The data utilizes public information compiled from the Airbnb website, so, if a listing is on the website at the time of scraping, it will be on the dataset.</p>
+<p>No private information is being used: names, photographs, listings, and review details are all public. Furthermore, not much preprocessing was done (or explained) on the data. Evidence of this can be seen from the data. For example, price is noted as a <code>chr</code>, which is likely due to it being directly scraped from the webpage.</p>
+<p>All the Airbnb data scraped by Inside Airbnb is public, so all Airbnb hosts should be aware that their data and information can be scraped and used for other purposes.</p>
+<p>In <code>airbnb_data</code>, the observations (rows) are different Airbnb listings in NYC and the attributes (columns) are various variables that describe the listing. Some columns include <code>price</code>, <code>host_is_superhost</code>, <code>room_type</code>, and <code>review_scores_rating</code>.</p>
+<p>Above, we produced several subsets of the main dataset including <code>no_reviews</code>, <code>df_location_price,</code> <code>amenities_df</code>, and <code>room_type_price</code> among other dataframes.</p>
+</section>
+<section id="data-limitations" class="level1">
+<h1>Data limitations</h1>
+<p>There are several limitations with our data:</p>
+<ul>
+<li><p>With our current dataset, we cannot do a time-series analysis on prices since the prices listed in <code>airbnb_data</code> is valid for the one day the data was scraped. There are more .csv files on Inside Airbnb that we can download and merge to conduct a time-series analysis on prices.</p></li>
+<li><p>We can only do analysis on Airbnb listings in NYC. How about Chicago? San DIego? London? Trends we find in NYC may not be applicable in other cities.</p></li>
+</ul>
+</section>
+<section id="exploratory-data-analysis" class="level1">
+<h1>Exploratory data analysis</h1>
+<section id="location-1" class="level2">
+<h2 class="anchored" data-anchor-id="location-1">Location</h2>
+<p>The next step was the exploratory analysis. For the sake of understanding the general trend of each region of NYC, I focused mainly on the column <code>neighbourhood_group_cleansed</code>, the broadest categorical variable for listing location, and compared it to <code>price</code> of the listings. However, I immediately noticed that there were a few exceptionally expensive listings within this data set, so I first tried boxploting the logarithmic prices, so that the values were readable. I also counted the number of actually listings per region of NYC so that I could understand the boxplots better.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exploratory (while my main interest is in neighbourhood_group_cleansed, I want to include other relevant location data in this for future use)</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>df_location_price <span class="sc">|&gt;</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">neighbourhood_group_cleansed =</span> <span class="fu">fct_reorder</span>(neighbourhood_group_cleansed, numb_dollar, <span class="at">.desc =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(neighbourhood_group_cleansed, <span class="at">fill =</span> neighbourhood_group_cleansed)) <span class="sc">+</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"New York neighborhoods"</span>,</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Priced Airbnb listing count within New York neighborhoods"</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>df_location_price <span class="sc">|&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">neighbourhood_group_cleansed =</span> <span class="fu">fct_reorder</span>(neighbourhood_group_cleansed, numb_dollar, <span class="at">.desc =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="fu">log</span>(numb_dollar), neighbourhood_group_cleansed, <span class="at">fill =</span> neighbourhood_group_cleansed)) <span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"New York neighborhoods"</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"(logarithmic) Listing prices"</span>,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Airbnb listing prices within New York neighborhoods"</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_dollar</span>(<span class="at">scale_cut =</span> <span class="fu">cut_short_scale</span>()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 27 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/unnamed-chunk-16-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>However, this set up is likely not going to be helpful in understanding any other patterns other than the raw median / IQR / or outliers of the data, as the axis is only accounting for a very long and thing tail skewing the data heavily to the right. Because of this, I believe that we should have a cut off to look more closely at the majority of data points.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exploratory V2 (Cutting off at $500 per night. I am fully aware that 500 is an arbitrary number and that we should decide a specific percentile in the future. The number was chosen to prove my point)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># reasoning for cut-off: https://airbtics.com/airbnb-occupancy-rates-in-new-york-city/, histogram: patterns we could not be able to see if we didn't cut off the huge skewed tail.</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>df_location_price <span class="sc">|&gt;</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">neighbourhood_group_cleansed =</span> <span class="fu">fct_reorder</span>(neighbourhood_group_cleansed, numb_dollar, <span class="at">.desc =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(numb_dollar <span class="sc">&lt;</span> <span class="dv">500</span>) <span class="sc">|&gt;</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(numb_dollar, neighbourhood_group_cleansed, <span class="at">fill =</span> neighbourhood_group_cleansed)) <span class="sc">+</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"New York neighborhoods"</span>,</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Listing prices"</span>,</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Airbnb listing prices within New York neighborhoods (&lt; $500/night)"</span></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_dollar</span>(<span class="at">scale_cut =</span> <span class="fu">cut_short_scale</span>()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df_location_price <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">neighbourhood_group_cleansed =</span> <span class="fu">fct_reorder</span>(neighbourhood_group_cleansed, numb_dollar, <span class="at">.desc =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(numb_dollar <span class="sc">&lt;</span> <span class="dv">500</span>) <span class="sc">|&gt;</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(numb_dollar, <span class="at">fill =</span> neighbourhood_group_cleansed)) <span class="sc">+</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>, <span class="at">binwidth =</span> <span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="at">facet =</span> <span class="fu">vars</span>(neighbourhood_group_cleansed)) <span class="sc">+</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Listing prices"</span>,</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Airbnb listing prices within New York neighborhoods (&lt; $500/night)"</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="fu">label_dollar</span>(<span class="at">scale_cut =</span> <span class="fu">cut_short_scale</span>())) <span class="sc">+</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/unnamed-chunk-17-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>For the sake of my argument, I’m cutting off the data at $500 per night for these two graphs. For example, the histogram shows patterns we could not be able to see if we didn’t cut off the huge skewed tail, like how there appears to be multiple spikes in listings at rounded values ($100 per night, $200, $300, etc). I am fully aware that 500 is an arbitrary number and that we should decide a specific percentile in the future.</p>
+</section>
+<section id="availability-1" class="level2">
+<h2 class="anchored" data-anchor-id="availability-1">Availability</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create scatterplot to visualize relationship between availability and price</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(airbnb_data_availability, <span class="fu">aes</span>(<span class="at">x =</span> availability_30, <span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Availability (30 days)"</span>, <span class="at">y =</span> <span class="st">"Price (USD)"</span>) <span class="sc">+</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Relationship between Availability and Price"</span>) <span class="sc">+</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/avail-vis-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create scatterplot to visualize relationship between availability_365 and price by month/year</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(airbnb_data_availability, <span class="fu">aes</span>(<span class="at">x =</span> availability_365, <span class="at">y =</span> price, <span class="at">color =</span> month_year)) <span class="sc">+</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Availability (365 days)"</span>, <span class="at">y =</span> <span class="st">"Price (USD)"</span>, <span class="at">color =</span> <span class="st">"Month/Year"</span>) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Relationship between Availability and Price by Month/Year"</span>) <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/avail-vis-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create boxplot to compare price distribution across availability periods</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    price, availability_30, availability_60, availability_90,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    availability_365</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>price, <span class="at">names_to =</span> <span class="st">"availability_period"</span>, <span class="at">values_to =</span> <span class="st">"availability"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> availability_period, <span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Availability Period"</span>, <span class="at">y =</span> <span class="st">"Price (USD)"</span>) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Price Distribution by Availability Period"</span>) <span class="sc">+</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/avail-vis-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The first scatterplot shows the relationship between availability in the next 30 days and price. The second scatterplot shows the relationship between availability in the next 365 days and price, with each point colored by the month/year extracted from the “last_review” column.</p>
+</section>
+<section id="amenities-1" class="level2">
+<h2 class="anchored" data-anchor-id="amenities-1">Amenities</h2>
+<p>We can visualize the top 20 amenities listed in Airbnb listings.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>amenities_df <span class="sc">|&gt;</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(amenities) <span class="sc">|&gt;</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> n, <span class="at">y =</span> <span class="fu">fct_reorder</span>(amenities, n))) <span class="sc">+</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Count"</span>,</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Amenities"</span>,</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Top 20 amenities listed in Airbnb rentals in NYC, March 2023"</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/top-20-amenities-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Upon analyzing the most frequently mentioned amenities in Airbnb listings in New York City, we observe that “Wifi” is the most common. Interestingly, “Dedicated workspace” also appears among the top 20 amenities, which may be attributed to the city’s status as a major economic hub. This observation raises the question of whether there is significant demand for Airbnb accommodations among travelling employees who require a comfortable and productive workspace while away from their home offices.</p>
+<p>Earlier, we created <code>fast_wifi</code>, which outlines whether a listing has “fast wifi” listed in its list of amenities. Is there a trend between having fast wifi listed and listing price?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge fast_wifi with price</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>fast_wifi_price <span class="ot">&lt;-</span> airbnb_data <span class="sc">|&gt;</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price) <span class="sc">|&gt;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">merge</span>(fast_wifi)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate mean listing price, group by fast_wifi</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>fast_wifi_price <span class="sc">|&gt;</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(fast_wifi) <span class="sc">|&gt;</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">count =</span> <span class="fu">n</span>(),</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_price =</span> <span class="fu">mean</span>(price)</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  fast_wifi   count mean_price
+  &lt;lgl&gt;       &lt;int&gt;      &lt;dbl&gt;
+1 FALSE     1118867       214.
+2 TRUE         2424       217.</code></pre>
+</div>
+</div>
+<p>We see that only around 2,000 listings out of over 40,000 listings in NYC advertise “fast wifi” as an amenity. Surprisingly, we do not see a significant difference in the mean listing price of listings that advertise “fast wifi” and those that do not. This finding suggests that the provision of Wifi is no longer a unique or distinguishing factor, and has become an essential and expected amenity in an Airbnb accommodation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>essential_count <span class="ot">&lt;-</span> listing_esential_amenitites <span class="sc">|&gt;</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(amenities, listed) <span class="sc">|&gt;</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>()</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>essential_pct <span class="ot">&lt;-</span> essential_count <span class="sc">|&gt;</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(amenities) <span class="sc">|&gt;</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pct =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n))</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>essential_pct <span class="sc">|&gt;</span></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">str_to_title</span>(amenities), <span class="at">y =</span> pct, <span class="at">fill =</span> listed)) <span class="sc">+</span></span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Amenities"</span>,</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Percentage of listings"</span>,</span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Listed"</span>,</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"A visual guide to essential Airbnb amenities in NYC"</span>,</span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Kitchen and Wifi are the two most listed essential amenities"</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>()) <span class="sc">+</span></span>
+<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/essential-amenities-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="host-characteristics-1" class="level2">
+<h2 class="anchored" data-anchor-id="host-characteristics-1">Host characteristics</h2>
+<p>Here we can visualize if the number of listings a host has affects their average price. From the graph shown below, it looks like there isn’t necessarily a correlation between the two variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot listings versus price dataset</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(host_list,</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> avg_price_host, <span class="at">y =</span> host_listings_count)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(host_list<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>))) <span class="sc">+</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"# of listings vs average price"</span>,</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"# of listings (per host)"</span></span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3776 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/host-characteristics-visuals-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here we visualize a host’s communication rating and their average price per listing. It looks like most hosts have a rating above 4. Even then, the prices of listings vary throughout.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot host rating and price of listings</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(host_rating,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">y =</span> review_scores_communication)) <span class="sc">+</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(host_rating<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>))) <span class="sc">+</span></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Host communication rating vs price"</span>,</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Host acceptance rate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3170 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/host-rating-visual-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Here we graph a host’s acceptance rate against their average listing price and group it by whether or not the host is a super host. We see that between both super hosts and non-super hosts, as the average price of listings per host goes up, their acceptance rate goes down. This is obvious as both graphs are right-skewed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot acceptance rate and price and facet by super hosts</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(accept,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> price, <span class="at">y =</span> host_acceptance_rate)) <span class="sc">+</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="dv">15</span>, <span class="at">fill=</span><span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(host_is_superhost)) <span class="sc">+</span></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(accept<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.95</span>)),</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">label_dollar</span>()) <span class="sc">+</span></span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="fu">label_percent</span>(<span class="at">scale =</span> .<span class="dv">001</span>)) <span class="sc">+</span></span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Host acceptance rate vs price"</span>,</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Average price (per host)"</span>,</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Host acceptance rate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 2392 rows containing missing values (`position_stack()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `position_stack()` requires non-overlapping x intervals
+`position_stack()` requires non-overlapping x intervals</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 539 rows containing missing values (`geom_col()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/acceptance-rate-visual-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="listing-characteristics-1" class="level2">
+<h2 class="anchored" data-anchor-id="listing-characteristics-1">Listing characteristics</h2>
+<p>Let’s first see how many listings there are in each available room type.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>room_type_price <span class="sc">|&gt;</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">|&gt;</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> room_type, <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Room type"</span>,</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/room-type-count-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that the “Entire home/apt” and “Private room” room types are most frequent. How does price vary with the room types?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graph Price vs. Room type</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>room_type_price <span class="sc">|&gt;</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(room_type) <span class="sc">|&gt;</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> room_type, <span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(room_type_price<span class="sc">$</span>price, <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.9</span>))) <span class="sc">+</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Room Type"</span>, <span class="at">y =</span> <span class="st">"Price"</span>) <span class="sc">+</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 8326 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/room-type-price-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that the median prices of hotel rooms are most expensive, followed by entire home/apt options, and followed by private room and shared room options.</p>
+<p>Another characteristic of a listing is the number of bedrooms it has, given by column <code>bedrooms</code> in <code>airbnb_data</code>. Let’s first see the distribution of number of bedrooms.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>bedroom_price <span class="sc">|&gt;</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> bedrooms)) <span class="sc">+</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>() <span class="sc">+</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of bedrooms"</span>,</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/bedroom-hist-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We see that the histogram is very much right-skewed and most listings have less than four bedrooms. How does price relate to the number of bedrooms?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Graph Price vs. bedrooms</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>bedroom_price <span class="sc">|&gt;</span></span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> bedrooms, <span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>() <span class="sc">+</span></span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Bedrooms"</span>, <span class="at">y =</span> <span class="st">"Price"</span>) <span class="sc">+</span></span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>There are some outliers that make the scatterplot look weird. Let’s try to 1) only take listings up to the 75th percentile in prices and 2) only see listings with less than four bedrooms.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>bedroom_price <span class="sc">|&gt;</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bedrooms <span class="sc">&lt;=</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(bedrooms), <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(bedroom_price<span class="sc">$</span>price, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.75</span>))) <span class="sc">+</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Price"</span></span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 9547 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/bedroom-price-boxplot-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>From the boxplots above, we see that two- and three-bedroom options are generally more expensive.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit linear regression model</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>price_bedroom_fit <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">|&gt;</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(price <span class="sc">~</span> bedrooms, <span class="at">data =</span> bedroom_price)</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tidy</span>(price_bedroom_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 5
+  term        estimate std.error statistic   p.value
+  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 (Intercept)     33.5      8.02      4.18 2.87e-  5
+2 bedrooms       118.       4.99     23.6  2.47e-122</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glance</span>(price_bedroom_fit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 12
+  r.squared adj.r.squared sigma statistic   p.value    df   logLik    AIC    BIC
+      &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+1    0.0141        0.0140  780.      557. 2.47e-122     1 -315508. 6.31e5 6.31e5
+# ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>bedroom_price <span class="sc">|&gt;</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">c =</span> <span class="fu">cor</span>(bedrooms, price)</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+      c
+  &lt;dbl&gt;
+1 0.119</code></pre>
+</div>
+</div>
+<p>Another characteristic of a listing is the number of bathrooms it has, given by column <code>bathrooms</code> in <code>airbnb_data</code>. Let’s first see the distribution of number of bathrooms. We first need to tidy the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows with missing values in Bedrooms or Bathrooms columns</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>listing <span class="ot">&lt;-</span> airbnb_data <span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, price, neighbourhood_cleansed, neighbourhood_group_cleansed, </span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>         room_type, bedrooms, review_scores_rating, bathrooms_text) <span class="sc">|&gt;</span> </span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(bedrooms), <span class="sc">!</span><span class="fu">is.na</span>(bathrooms_text))</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract number of bathrooms from bathrooms_text</span></span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>listing<span class="sc">$</span>bathrooms <span class="ot">&lt;-</span> <span class="fu">str_extract</span>(listing<span class="sc">$</span>bathrooms_text, <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span>)</span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert "shared" bathrooms to half a bathroom</span></span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>listing<span class="sc">$</span>bathrooms <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(listing<span class="sc">$</span>bathrooms_text, <span class="st">"shared"</span>), </span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">as.numeric</span>(listing<span class="sc">$</span>bathrooms)<span class="sc">/</span><span class="dv">2</span>, </span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a>                                     listing<span class="sc">$</span>bathrooms)</span>
+<span id="cb68-14"><a href="#cb68-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-15"><a href="#cb68-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert "private" bathrooms to numeric</span></span>
+<span id="cb68-16"><a href="#cb68-16" aria-hidden="true" tabindex="-1"></a>listing<span class="sc">$</span>bathrooms <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(listing<span class="sc">$</span>bathrooms_text, <span class="st">"private"</span>), </span>
+<span id="cb68-17"><a href="#cb68-17" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">as.numeric</span>(listing<span class="sc">$</span>bathrooms), </span>
+<span id="cb68-18"><a href="#cb68-18" aria-hidden="true" tabindex="-1"></a>                                     listing<span class="sc">$</span>bathrooms)</span>
+<span id="cb68-19"><a href="#cb68-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-20"><a href="#cb68-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Change the bathrooms from charaters to numeric values</span></span>
+<span id="cb68-21"><a href="#cb68-21" aria-hidden="true" tabindex="-1"></a>listing <span class="ot">&lt;-</span> listing <span class="sc">|&gt;</span></span>
+<span id="cb68-22"><a href="#cb68-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bathrooms =</span> <span class="fu">as.numeric</span>(bathrooms))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>listing <span class="sc">|&gt;</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> bathrooms)) <span class="sc">+</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of bathrooms"</span>,</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Count of number of bathrooms on Airbnb NYC listing"</span></span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 52 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/bathroom number-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see that most listings have 1 bathroom, then half bathroom, and then 2 bathrooms. The number of listings with other numbers of bathrooms is not too small to be representative.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>listing <span class="sc">|&gt;</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(bathrooms <span class="sc">&lt;=</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(bathrooms), <span class="at">ncol =</span> <span class="dv">7</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">quantile</span>(listing<span class="sc">$</span>price, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.9</span>))) <span class="sc">+</span></span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Bathrooms"</span>,</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Price"</span>,</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Price vs. Bathroom numbers in NYC"</span>) <span class="sc">+</span></span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3861 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="eda_files/figure-html/graph price vs. bathroom numbers-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="questions-for-reviewers" class="level1">
+<h1>Questions for reviewers</h1>
+<p>Some questions we have are:</p>
+<ul>
+<li><p>Are our research questions okay? Do we need to be more specific? More broad?</p></li>
+<li><p>Can you think of other variables that we can include in our analysis, or you think would be interesting to look into?</p></li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

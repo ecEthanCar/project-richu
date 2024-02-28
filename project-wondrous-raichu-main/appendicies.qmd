@@ -1,0 +1,1319 @@
+---
+title: "Analyzing Airbnb Data"
+subtitle: "Appendix to report"
+format: html
+editor: visual
+execute:
+  echo: true
+---
+
+# Appendix 1: Data cleaning
+
+```{r}
+#| label: load-pkgs
+#| message: false
+
+library(tidyverse)
+library(skimr)
+library(jsonlite)
+library(dplyr)
+library(scales)
+library(tidymodels)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(stringr)
+
+theme_set(theme_minimal())
+set.seed(123)
+```
+
+```{r}
+#| label: load-airbnb-data
+#| message: false
+
+# Load airbnb listings data (03/06/2023)
+airbnb_data <- read_csv("data/airbnb_data/03_06_2023_listings.csv", 
+    col_types = cols(price = col_number()))
+
+# Remove listings with price outliers
+airbnb_data <- airbnb_data |> 
+  filter(price < quantile(airbnb_data$price, 0.99))
+
+# Load amenities dataframe from EDA
+amenities <- read_csv("data/airbnb_data/amenities_data.csv")
+```
+
+## Appendix 1A: Converting number of bathrooms from text to numeric
+
+In our main dataset, the number of bathrooms is found in `bathrooms_text` and is presented as text instead of numeric. For example, you would see entries like "1 shared bath," "2 baths," and "2.5 baths." This is quite troublesome for analysis. As such, we first extract the number in the entry. Them, we check any occurrence of the words "shared" and "private." If the word "shared" is there, we divide the number by two.
+
+```{r}
+#| label: bathroom-tidy
+
+listing <- airbnb_data %>%
+  select(id, price, bedrooms, bathrooms_text) |> 
+  drop_na(bathrooms_text)
+
+listing$bathrooms <- str_extract(listing$bathrooms_text, "\\d+")
+
+listing$bathrooms <- ifelse(str_detect(listing$bathrooms_text, "shared"), 
+                                     as.numeric(listing$bathrooms)/2, 
+                                     listing$bathrooms)
+
+listing$bathrooms <- ifelse(str_detect(listing$bathrooms_text, "private"), 
+                                     as.numeric(listing$bathrooms), 
+                                     listing$bathrooms)
+
+bathroom_tidy <- listing |>
+  mutate(bathrooms = as.numeric(bathrooms))
+
+write_csv(bathroom_tidy |> select(id, price, bathrooms), "data/airbnb_data/bathroom_tidy.csv")
+```
+
+## Appendix 1B: Parsing through list of amenities
+
+A major issue with amenities is that it is stored as a character list. We need to parse and clean this so that we can do more analysis.
+
+```{r}
+#| label: amenities-df
+
+amenities_df <- airbnb_data |>
+  # Create subset of Airbnb data pertaining to amenities
+  select(id, amenities) |>
+  # Replace any occurrences of square brackets with empty string
+  mutate(amenities = gsub("\\[|\\]", "", amenities)) |>
+  # Split the list by comma and make separate rows
+  separate_rows(amenities, sep = ", ") |>
+  # Unnest the list
+  unnest(amenities)
+```
+
+## Appendix 1C: Identifying extra amenities
+
+We wanted to conduct analysis on specific amenities, so we parsed out eight amenities that we consider as "extras:" air conditioning, heating, dishes and silverware, cooking basics, microwave, coffee maker, washer, and dryer.
+
+```{r}
+#| label: extra-amenities-df
+
+extra_amenities <- c("air conditioning", "heating", "dishes and silverware", "cooking basics", "microwave", "coffee maker", "washer", "dryer")
+
+extra_df <- data.frame(amenities) |> drop_na(amenities)
+  
+for (amenity in extra_amenities) {
+  extra_df <- extra_df |>
+    mutate(!!amenity :=
+      str_detect(
+        extra_df$amenities,
+        regex(amenity, ignore_case = TRUE)
+      ))
+}
+
+extra_df <- extra_df |>
+  group_by(id) |>
+  summarise(
+    air_conditioning = any(`air conditioning`),
+    heating = any(heating),
+    dishes_and_silverware = any(`dishes and silverware`),
+    cooking_basics = any(`cooking basics`),
+    microwave = any(microwave),
+    coffee_maker = any(`coffee maker`),
+    washer = any(washer),
+    dryer = any(dryer)
+  )
+
+extra_all <- extra_df |> 
+  mutate(
+    all_extras = 
+      air_conditioning &
+      heating &
+      dishes_and_silverware &
+      cooking_basics&microwave &
+      coffee_maker &
+      washer &
+      dryer
+  ) |> merge(airbnb_data |> select(id, price))
+
+write.csv(extra_all, "data/airbnb_data/extra_amenities.csv", row.names=FALSE)
+```
+
+## Appendix 1D: Identifying work-from-home amenities
+
+Similar to our extra amenities analysis, we decided to look into how work-from-home (WFH) amenities play a role in affecting price, and whether or not it can be a good price predictor. We decided to look into three WFH criteria:
+
+1.  The listing must offer Wifi, which we determined by checking its list of amenities.
+
+2.  The listing must offer a dedicated workspace, which we determined by checking its list of amenities.
+
+3.  The listing must be located in a quiet environment. To determine this, we searched for occurrences of the word "quiet" in the listing's name and description.
+
+```{r}
+#| label: wfh-amenities-df
+
+wfh_amenities <- data.frame(amenities) |> drop_na(amenities)
+
+for (amenity in c("wifi", "workspace")) {
+  wfh_amenities <- wfh_amenities |>
+    mutate(!!amenity :=
+      str_detect(
+        wfh_amenities$amenities,
+        regex(amenity, ignore_case = TRUE)
+      ))
+}
+
+wfh_amenities <- wfh_amenities |>
+  group_by(id) |>
+  summarise(
+    wifi = any(wifi),
+    workspace = any(workspace)
+  )
+
+listings_with_quiet <- airbnb_data |> 
+  select(id) |> 
+  mutate(
+    quiet = case_when(
+      str_detect(airbnb_data$name, regex("quiet", ignore_case = TRUE)) ~ TRUE,
+      str_detect(airbnb_data$description, regex("quiet", ignore_case = TRUE)) ~ TRUE
+      ,TRUE ~ FALSE
+    )
+  )
+
+wifi_work_quiet <- merge(wfh_amenities, listings_with_quiet) |> 
+  mutate(
+    all_three = wifi&workspace&quiet,
+    wifi_workspace_only = wifi&workspace&(!quiet),
+    wifi_only =  wifi&(!workspace)&(!quiet)
+  ) |> 
+  merge(airbnb_data |> select(id, neighbourhood_cleansed, 
+                              neighbourhood_group_cleansed, price)) |> 
+  drop_na()
+
+write.csv(wifi_work_quiet, "data/airbnb_data/wfh_amenities.csv", row.names=FALSE)
+```
+
+## Appendix 1E: Cleaning up host characteristics
+
+To see how host characteristics vary, we need to make sure that the hosts with multiple listings are only displayed once. To do this, we only include unique host IDs. By doing so, the price and various review scores only display the values associated with whichever listing remains. To avoid this, we average these values by grouping the host IDs. The following analysis is built on these averaged prices and host characteristics.
+
+```{r}
+#| label: host-df
+
+host <- airbnb_data |>
+  select(
+    host_id,
+    host_is_superhost,
+    host_identity_verified,
+    review_scores_cleanliness,
+    review_scores_communication,
+    host_response_time,
+    host_acceptance_rate,
+    price,
+  ) |>
+  drop_na() |>
+  group_by(host_id) |>
+  mutate(price = mean(price)) |>
+  distinct(host_id, .keep_all = TRUE) |>
+  mutate(price = log(price)) |>
+  ungroup()
+```
+
+```{r}
+#| label: superhost-df
+
+# Superhost dataframe
+superhosts <- host |>
+  select(host_is_superhost) |>
+  mutate(host_is_superhost = if_else(host_is_superhost == TRUE, "Superhost", "Not superhost")) |>
+  count(host_is_superhost)
+
+# Superhost visual
+superhost_graph <-
+  ggplot(host, mapping = aes(x = host_is_superhost)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = rev,
+                   labels = c("Superhost", "Not superhost")) +
+  labs(title = "# of superhosts",
+       x = "",
+       y = "Count")
+```
+
+```{r}
+#| label: identity-df
+
+# Host identity verified dataframe
+identity_verified <- host |>
+  select(host_identity_verified) |>
+  mutate(host_identity_verified = if_else(host_identity_verified == TRUE, "Verified", "Not verified")) |>
+  count(host_identity_verified)
+
+# Host identity verified graph
+identity_verified_graph <-
+  ggplot(host, mapping = aes(x = host_identity_verified)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = rev,
+                   labels = c("Verified", "Not verified")) +
+  labs(title = "# of verified hosts",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: cleanliness-df
+
+# Review score cleanliness dataframe
+cleanliness <- host |>
+  select(review_scores_cleanliness) |>
+  mutate(
+    scores = case_when(
+      4 < review_scores_cleanliness &
+        review_scores_cleanliness <= 5 ~ "Very high",
+      3 < review_scores_cleanliness &
+        review_scores_cleanliness <= 4 ~ "High",
+      2 < review_scores_cleanliness &
+        review_scores_cleanliness <= 3 ~ "Medium",
+      1 < review_scores_cleanliness &
+        review_scores_cleanliness <= 2 ~ "Low",
+      review_scores_cleanliness <= 1 ~ "Very low",
+    ),
+    cleanliness_score = fct_relevel(scores, "Very low", "Low", "Medium", "High", "Very high")
+  ) |>
+  count(cleanliness_score)
+
+# Review score cleanliness graph
+cleanliness_graph <- ggplot(cleanliness, mapping = aes(x = cleanliness_score, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Host cleanliness rating",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: communication-df
+
+# Review score communication dataframe
+communication <- host |>
+  select(review_scores_communication) |>
+  mutate(
+    scores = case_when(
+      4 < review_scores_communication &
+        review_scores_communication <= 5 ~ "Very high",
+      3 < review_scores_communication &
+        review_scores_communication <= 4 ~ "High",
+      2 < review_scores_communication &
+        review_scores_communication <= 3 ~ "Medium",
+      1 < review_scores_communication &
+        review_scores_communication <= 2 ~ "Low",
+      review_scores_communication <= 1 ~ "Very low",
+    ),
+    communication_score = fct_relevel(scores, "Very low", "Low", "Medium", "High", "Very high")
+  ) |>
+  count(communication_score)
+
+# Review score communication graph
+communication_graph <-
+  ggplot(communication, mapping = aes(x = communication_score, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Host communication rating",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: response-df
+
+# Host response time dataframe
+response <- host |>
+  select(host_response_time, price) |>
+  count(host_response_time) |>
+  mutate(
+    Time = fct_relevel(
+      host_response_time,
+      "within an hour",
+      "within a few hours",
+      "within a day",
+      "a few days or more"
+    )
+  )
+
+response[response == "N/A"]  <- NA
+
+response <- na.omit(response)
+
+# Host response time graph
+response_time_graph <-
+  ggplot(response, mapping = aes(x = host_response_time, y = n)) +
+  geom_col() +
+  scale_x_discrete(
+    limits = rev,
+    labels = c(
+      "within an hour",
+      "within a few hours",
+      "within a day",
+      "a few days or more"
+    )
+  ) +
+  theme_minimal() +
+  labs(title = "Hosts by their response time",
+       x = "",
+       y = "Count")
+```
+
+```{r}
+#| label: acceptance-df
+
+# Host acceptance rate dataframe
+acceptance <- host |>
+  select(host_acceptance_rate)
+
+acceptance[acceptance == "N/A"]  <- NA
+
+acceptance <- na.omit(acceptance)
+
+acceptance <- acceptance |>
+  mutate(
+    host_acceptance_rate = substr(host_acceptance_rate, 1, nchar(host_acceptance_rate)-1),
+    host_acceptance_rate = as.numeric(host_acceptance_rate)) |>
+  count(host_acceptance_rate)
+
+# Host acceptance rate graph
+acceptance_graph <-
+  ggplot(acceptance, mapping = aes(x = host_acceptance_rate, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Hosts by their acceptance rate",
+       x = "",
+       y = "Count")
+```
+
+## Appendix 1F: Model fitting and evaluation
+
+We created `main_variable_dataset` to have a centralized dataset to conduct our multivariate linear regression analysis and other ML model fitting.
+
+```{r}
+#| label: multivariate-linear-regression-data
+
+main_variable_dataset <- wifi_work_quiet |> 
+  select(id, wifi, workspace, quiet) |> 
+  merge(extra_all |> 
+          select(id, air_conditioning, heating, dishes_and_silverware, 
+                 cooking_basics, microwave, coffee_maker, washer, dryer, price)) |> 
+  merge(bathroom_tidy |> select(id, bathrooms)) |> 
+  merge(airbnb_data |> select(id, neighbourhood_group_cleansed,
+                              bedrooms, room_type, 
+                              host_is_superhost, 
+                              host_identity_verified,
+                              review_scores_cleanliness,
+                              review_scores_communication,
+                              review_scores_rating,
+                              host_response_time,
+                              host_acceptance_rate)) 
+
+main_variable_dataset[main_variable_dataset == "N/A"]  <- NA
+
+main_variable_dataset <- na.omit(main_variable_dataset)
+
+main_variable_dataset <- main_variable_dataset |>
+  mutate(
+    host_acceptance_rate = substr(host_acceptance_rate, 1, nchar(host_acceptance_rate)-1),
+    host_acceptance_rate = as.numeric(host_acceptance_rate)
+  )
+write_csv(main_variable_dataset, "data/airbnb_data/main_variable_dataset.csv")
+```
+
+# Appendix 2: Additional analyses
+
+## Appendix 2A: Bathroom-to-bedroom ratio
+
+The bathroom-to-bedroom ratio is an interesting factor in determining the price of Airbnb. Usually, luxury stayings tend to have a higher bathroom-to-bedroom ratio, which means there are more bathrooms than bedrooms. We will check if the assumption is true.
+
+```{r}
+#| label: bathroom-to-bedroom ratio
+
+# Create a new variable for bathroom-to-bedroom ratio
+ratio_listing <- mutate(bathroom_tidy, bath_bed_ratio = as.numeric(bathrooms) / bedrooms)
+
+ratio_listing
+
+# Create a histogram to visualize the distribution
+ratio_listing |>
+  ggplot(aes(x = bath_bed_ratio)) +
+  geom_histogram(binwidth = 0.5, fill = "#008FD5", color = "black") +
+  labs(title = "Bathroom-to-bedroom Ratio Distribution",
+       x = "Bathroom-to-bedroom Ratio",
+       y = "Frequency") 
+```
+
+```{r}
+#| label: graph price vs. bathroom-to-bedroom ratios in NYC
+
+ratio_listing |>
+  filter(bath_bed_ratio %in% c(1,2,3,4)) |> 
+  ggplot(aes(x = bath_bed_ratio, y = price)) +
+  geom_boxplot() +
+  facet_wrap(vars(bath_bed_ratio)) +
+  scale_y_continuous(limits = quantile(listing$price, c(0, 0.9))) +
+  labs(x = "Bathroom-to-bedroom ratio",
+       y = "Price",
+       title = "Price vs. Bathroom-to-bedroom ratio on Airbnb in NYC")+
+  theme(axis.text.x = element_blank())
+```
+
+```{r}
+#| label: linear regression price vs. bathroom-to-bedroom ratio in NYC
+
+logprice_ratio_fit <- linear_reg() |>
+  fit(log(price) ~ bath_bed_ratio, data = ratio_listing)
+```
+
+
+## Appendix 2B: Proportion of listings with extra amenities and price difference
+
+```{r}
+#| label: extra-all-borough-table
+
+extra_all_neighbourhood <-
+  merge(extra_all, airbnb_data |>
+          select(id, price,
+                 neighbourhood_group_cleansed, neighbourhood_cleansed)) |>
+  select(id, all_extras, price,
+         neighbourhood_group_cleansed, neighbourhood_cleansed) |>
+  drop_na()
+
+extra_all_borough_table <- extra_all_neighbourhood |>
+  group_by(neighbourhood_group_cleansed) |>
+  summarize(
+    count = n(),
+    prop_all_extras = signif(sum(all_extras)/n(), 3)
+  ) |>
+  arrange(desc(prop_all_extras)) |>
+  set_names(c("Borough", "Number of listings", "Proportion of listings with all extra amenities included"))
+
+kable(extra_all_borough_table,
+      caption = "Proportion of listings with all extra amenities included by borough",
+             align = "l") |> 
+  kable_classic() 
+```
+
+```{r}
+#| label: median-price-extra-table
+
+extra_table <- extra_all_neighbourhood |> 
+  mutate(
+    all_extras = factor(ifelse(all_extras, "Yes", "No"))
+  ) |> 
+  group_by(all_extras) |> 
+  summarise(
+    median_price = signif(median(price), 3)
+  )  |> 
+  arrange(desc(median_price)) |> 
+  mutate(
+    median_price = dollar(median_price)
+  )  |> 
+  set_names(c("Does the listing have all the extras?", "Median price"))
+
+kable(extra_table, 
+             align = "l") |> 
+  kable_classic() 
+```
+
+## Appendix 2C: Additive and interactive linear regressions with respect to extra amenities
+
+Below, we fit additive and interactive linear regression models for extra amenities. As expected, we see that the interactive model produced a higher R-squared value than the additive model. Moreover, we see that both models produced R-squared values of above 10%, which suggests that extra amenities are not negligible in affecting price.
+
+```{r}
+#| label: extra-amenities-add-int
+
+linear_all_interactive <- linear_reg() |>
+  fit(log(price) ~
+        air_conditioning * heating * dishes_and_silverware * 
+        cooking_basics * microwave * coffee_maker * washer * dryer, 
+      data = extra_all |> drop_na() |> filter(price != 0))
+
+linear_all_additive <- linear_reg() |>
+  fit(log(price) ~ air_conditioning + heating + dishes_and_silverware + 
+        cooking_basics + microwave + coffee_maker + washer + dryer,
+      data = extra_all |> drop_na() |> filter(price != 0))
+
+kable(
+  glance(linear_all_interactive),
+  caption = 
+    "Interactive Linear Regression of log(price) with respect to extra amenities",
+  align = "l") |>
+  kable_classic()
+
+kable(
+  glance(linear_all_additive),
+  caption = 
+    "Additive Linear Regression of log(price) with respect to extra amenities",
+  align = "l") |>
+  kable_classic()
+```
+
+## Appendix 2D: Proportion of listings with WFH amenities and price difference
+
+```{r}
+#| label: wfh-final-borough
+
+wfh_final_borough_table <- wifi_work_quiet |> 
+  group_by(neighbourhood_group_cleansed) |> 
+  summarize(
+    count = n(),
+    prop_all_three = signif(sum(all_three)/n(), 3),
+    prop_wifi_workspace_only = signif(sum(wifi_workspace_only)/n(), 3),
+    prop_wifi_only = signif(sum(wifi_only)/n(), 3)
+  ) |> 
+  arrange(desc(prop_all_three)) |> 
+  set_names(c("Borough", "Number of listings", "Proportion of listings with all three criteria met", "Proportion of listings with Wifi and workspace only", "Proportion of listings with Wifi only"))
+
+kable(wfh_final_borough_table, 
+      caption = "Proportion of listings with WFH criteria satisfied by borough",
+             align = "l") |> 
+  kable_classic() 
+```
+
+```{r}
+#| label: mean-price-wfh-table
+
+wfh_table <- wifi_work_quiet |> 
+  mutate(
+    all_three = factor(ifelse(all_three, "Yes", "No"))
+  ) |> 
+  group_by(all_three) |> 
+  summarise(
+    median_price = signif(median(price), 3)
+  )  |> 
+  arrange(desc(median_price)) |> 
+  mutate(
+    median_price = dollar(median_price)
+  ) |> 
+  set_names(c("Does the listing satisfy all WFH criteria?", "Median price"))
+
+kable(wfh_table, 
+             align = "l") |> 
+  kable_classic() 
+```
+
+## Appendix 2E: Additive and interactive linear regressions with respect to work-from-home amenities
+
+Below, we fit additive and interactive linear regression models for WFH amenities. The two models produced similar R-squared values, which suggests that WFH amenities are negligible in affecting price.
+
+```{r}
+
+wfh_interactive <- linear_reg() |>
+  fit(log(price) ~
+        wifi * workspace * quiet, 
+      data = wifi_work_quiet |> filter(price != 0))
+
+wfh_additive <- linear_reg() |>
+  fit(log(price) ~
+        wifi + workspace + quiet,
+      data = wifi_work_quiet |> filter(price != 0))
+
+kable(
+  glance(wfh_interactive),
+  caption = 
+    "Interactive Linear Regression of log(price) with respect to WFH criteria",
+  align = "l") |>
+  kable_classic()
+
+kable(
+  glance(wfh_additive),
+  caption = 
+    "Additive Linear Regression of log(price) with respect to WFH criteria",
+  align = "l") |>
+  kable_classic()
+```
+
+## Appendix 2F: Trends of host characteristics
+
+```{r}
+#| label: host-characteristic-vis
+
+superhost_graph
+identity_verified_graph
+cleanliness_graph
+communication_graph
+response_time_graph
+acceptance_graph
+```
+
+```{r}
+#| label: host-characteristic-percents
+
+superhosts_perc <-
+  tibble(perc = superhosts$n[2] / sum(superhosts$n) * 100)
+
+identity_verified_perc <-
+  tibble(perc = identity_verified$n[2] / sum(identity_verified$n) * 100)
+
+cleanliness_perc <- cleanliness |>
+  mutate(perc = n / sum(n) * 100) |>
+  select(cleanliness_score, perc)
+
+communication_perc <- communication |>
+  mutate(perc = n / sum(n) * 100) |>
+  select(communication_score, perc)
+
+response_perc <- response |>
+  mutate(Percent = n / sum(n) * 100) |>
+  select(Time, Percent)
+
+acceptance <- host |>
+  select(host_acceptance_rate)
+
+acceptance[acceptance == "N/A"]  <- NA
+
+acceptance <- na.omit(acceptance)
+
+acceptance <- acceptance |>
+  mutate(
+    host_acceptance_rate = substr(host_acceptance_rate, 1, nchar(host_acceptance_rate)-1),
+    host_acceptance_rate = as.numeric(host_acceptance_rate))
+
+acceptance_perc <-
+  tibble(perc = mean(acceptance$host_acceptance_rate))
+
+host_char_percs_1 <- tribble(
+  ~ `Host characteristic`, ~ `Percent`,
+  "Superhost", superhosts_perc$perc,
+  "Identity is verified", identity_verified_perc$perc,
+  "Host acceptance rate", acceptance_perc$perc,
+) |> 
+  arrange(desc(`Percent`))
+
+host_char_percs_2 <- tribble(
+  ~ `Rating`, ~ `Cleanliness review`, ~ `Communication review`,
+  cleanliness_perc$cleanliness_score[1], cleanliness_perc$perc[1], communication_perc$perc[1],
+  cleanliness_perc$cleanliness_score[2], cleanliness_perc$perc[2], communication_perc$perc[2],
+  cleanliness_perc$cleanliness_score[3], cleanliness_perc$perc[3], communication_perc$perc[3],
+  cleanliness_perc$cleanliness_score[4], cleanliness_perc$perc[4], communication_perc$perc[4],
+  cleanliness_perc$cleanliness_score[5], cleanliness_perc$perc[5], communication_perc$perc[5],
+)
+
+kable(host_char_percs_1, 
+             caption = "Trends of host characteristics",
+             align = "l") |> 
+  kable_classic()
+
+kable(host_char_percs_2, 
+             caption = "Trends of host reviews",
+             align = "l") |> 
+  kable_classic()
+
+kable(response_perc, 
+             caption = "Host response rate",
+             align = "l") |> 
+  kable_classic()
+```
+
+## Appendix 2G: Acceptance rate hypothesis testing
+
+```{r}
+#| label: acceptance-hypothesis
+
+accept <- host |>
+  select(host_acceptance_rate, price) |>
+  mutate(host_acceptance_rate = if_else(
+    0 <= host_acceptance_rate & host_acceptance_rate < 51, TRUE, FALSE
+  ))
+
+point_diff_acceptance <- accept |>
+  specify(price ~ host_acceptance_rate) |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+null_dist_acceptance <- accept |>
+  specify(price ~ host_acceptance_rate) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+visualize(null_dist_acceptance) +
+  shade_p_value(obs_stat = point_diff_acceptance, direction = "greater")
+
+get_p_value(null_dist_acceptance,
+            obs_stat = point_diff_acceptance,
+            direction = "greater")
+```
+
+## Appendix 2H: Cleanliness score hypothesis testing
+
+```{r}
+#| label: cleanliness-hypothesis
+
+clean <- host |>
+  select(review_scores_cleanliness, price) |>
+  mutate(review_scores_cleanliness = if_else(
+    4.0 < review_scores_cleanliness & review_scores_cleanliness <= 5.0, TRUE, FALSE
+  ))
+
+point_diff_cleanliness <- clean |>
+  specify(price ~ review_scores_cleanliness) |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+null_dist_cleanliness <- clean |>
+  specify(price ~ review_scores_cleanliness) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+visualize(null_dist_cleanliness) +
+  shade_p_value(obs_stat = point_diff_cleanliness, direction = "greater")
+
+get_p_value(null_dist_cleanliness,
+            obs_stat = point_diff_cleanliness,
+            direction = "greater")
+```
+
+## Appendix 2I: Backward elimination to isolate significant predictors
+
+We performed backward elimination on our full multivariate linear regression model to come up with a list of significant predictors.
+
+```{r}
+# remove overall rating
+all_21_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        host_is_superhost +
+        host_identity_verified +
+        review_scores_cleanliness +
+        review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_21_fit)
+tidy(all_21_fit)
+```
+
+```{r}
+# remove communcation rating
+all_20_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        host_is_superhost +
+        host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_20_fit)
+tidy(all_20_fit)
+```
+
+```{r}
+# remove identity verify
+
+all_19_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_19_fit)
+tidy(all_19_fit)
+```
+
+```{r}
+# review dishes and silverware
+all_18_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_18_fit)
+tidy(all_18_fit)
+```
+
+```{r}
+# remove superhost
+
+all_17_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_17_fit)
+tidy(all_17_fit)
+```
+
+```{r}
+# remove wifi
+
+all_16_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_16_fit)
+tidy(all_16_fit)
+```
+
+```{r}
+# remove heating
+
+all_15_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_15_fit)
+tidy(all_15_fit)
+```
+
+```{r}
+# remove acceptance rate
+
+all_14_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_14_fit)
+tidy(all_14_fit)
+```
+
+```{r}
+# remove response_time
+
+all_13_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_13_fit)
+tidy(all_13_fit)
+```
+
+```{r}
+# remove cooking basics
+
+all_12_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_12_fit)
+tidy(all_12_fit)
+```
+
+```{r}
+# remove quiet 
+
+all_11_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_11_fit)
+tidy(all_11_fit)
+```
+
+```{r}
+# remove workspace
+
+all_10_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_10_fit)
+tidy(all_10_fit)
+```
+
+```{r}
+# remove coffee maker
+
+all_9_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        # coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_9_fit)
+tidy(all_9_fit)
+```
+
+```{r}
+# remove air conditioning
+
+all_8_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        # air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        # coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_8_fit)
+tidy(all_8_fit)
+```
+
+```{r}
+# remove room type
+all_7_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        # air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        microwave +
+        # coffee_maker +
+        washer +
+        dryer +
+        #room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_7_fit)
+tidy(all_7_fit)
+```
+
+```{r}
+# remove microwave
+all_6_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        # air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        # microwave +
+        # coffee_maker +
+        washer +
+        dryer +
+        #room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_6_fit)
+tidy(all_6_fit)
+```
+
+```{r}
+# remove washer
+all_5_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        #wifi +
+        # workspace +
+        #quiet +
+        # host_is_superhost +
+        # host_identity_verified +
+        review_scores_cleanliness +
+        # review_scores_communication +
+        # review_scores_rating +
+        # host_response_time +
+        # host_acceptance_rate +
+        # air_conditioning +
+        # heating +
+        # dishes_and_silverware +
+        # cooking_basics +
+        # microwave +
+        # coffee_maker +
+        # washer +
+        dryer +
+        #room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+glance(all_5_fit)
+tidy(all_5_fit)
+```
+
+```{r}
+backward_elimination_table <- tribble(
+  ~ `Step`, ~ `Variable eliminated`, ~ `Adjusted R-squared`,
+  1, "Listing rating", glance(all_21_fit)$adj.r.squared,
+  2, "Host communication rating",glance(all_20_fit)$adj.r.squared,
+  3, "Host identity is verified",glance(all_19_fit)$adj.r.squared,
+  4, "Dishes and silverware",glance(all_18_fit)$adj.r.squared,
+  5, "Superhost status",glance(all_17_fit)$adj.r.squared,
+  6, "Wifi",glance(all_16_fit)$adj.r.squared,
+  7, "Heating",glance(all_15_fit)$adj.r.squared,
+  8, "Host acceptance rate",glance(all_14_fit)$adj.r.squared,
+  9, "Host response time",glance(all_13_fit)$adj.r.squared,
+  10, "Cooking basics",glance(all_12_fit)$adj.r.squared,
+  11, "Quiet environment",glance(all_11_fit)$adj.r.squared,
+  12, "Dedicated workspace",glance(all_10_fit)$adj.r.squared,
+  13, "Coffee maker",glance(all_9_fit)$adj.r.squared,
+  14, "Air conditioning",glance(all_8_fit)$adj.r.squared,
+  15, "Room type",glance(all_7_fit)$adj.r.squared,
+  16, "Microwave",glance(all_6_fit)$adj.r.squared, 
+  17, "Washer",glance(all_5_fit)$adj.r.squared 
+)
+write_csv(backward_elimination_table, "data/airbnb_data/backward_elimination_table.csv")
+```

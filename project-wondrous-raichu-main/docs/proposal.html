@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Wondrous Raichu</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html">
+ <span class="menu-text">TEAM NAME</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./proposal.html" aria-current="page">
+ <span class="menu-text">Proposal</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./eda.html">
+ <span class="menu-text">Exploratory data analysis</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pre-registration.html">
+ <span class="menu-text">Pre-registered analyses</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./presentation.html">
+ <span class="menu-text">Presentation</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./report.html">
+ <span class="menu-text">Report</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./appendicies.html">
+ <span class="menu-text">Appendicies</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#data-1" id="toc-data-1" class="nav-link active" data-scroll-target="#data-1">Data 1</a>
+  <ul class="collapse">
+  <li><a href="#introduction-and-data" id="toc-introduction-and-data" class="nav-link" data-scroll-target="#introduction-and-data">Introduction and data</a></li>
+  <li><a href="#research-questions" id="toc-research-questions" class="nav-link" data-scroll-target="#research-questions">Research question(s)</a>
+  <ul class="collapse">
+  <li><a href="#how-does-airbnb-listing-prices-depend-on-rating-of-listing-location-of-listing-amenities-included-in-the-listing-and-host-response-time" id="toc-how-does-airbnb-listing-prices-depend-on-rating-of-listing-location-of-listing-amenities-included-in-the-listing-and-host-response-time" class="nav-link" data-scroll-target="#how-does-airbnb-listing-prices-depend-on-rating-of-listing-location-of-listing-amenities-included-in-the-listing-and-host-response-time">How does Airbnb listing prices depend on rating of listing, location of listing, amenities included in the listing, and host response time?</a></li>
+  <li><a href="#how-do-characteristics-i.e.-ratings-and-descriptions-of-listings-and-of-hosts-affect-the-prices-of-listings" id="toc-how-do-characteristics-i.e.-ratings-and-descriptions-of-listings-and-of-hosts-affect-the-prices-of-listings" class="nav-link" data-scroll-target="#how-do-characteristics-i.e.-ratings-and-descriptions-of-listings-and-of-hosts-affect-the-prices-of-listings">How do characteristics (i.e., ratings and descriptions) of listings and of hosts affect the prices of listings?</a></li>
+  <li><a href="#what-are-the-most-popular-neighborhoods-for-airbnb-listings-and-how-does-this-popularity-vary-by-listing-type-and-price" id="toc-what-are-the-most-popular-neighborhoods-for-airbnb-listings-and-how-does-this-popularity-vary-by-listing-type-and-price" class="nav-link" data-scroll-target="#what-are-the-most-popular-neighborhoods-for-airbnb-listings-and-how-does-this-popularity-vary-by-listing-type-and-price">What are the most popular neighborhoods for Airbnb listings and how does this popularity vary by listing type and price?</a></li>
+  </ul></li>
+  <li><a href="#glimpse-of-data" id="toc-glimpse-of-data" class="nav-link" data-scroll-target="#glimpse-of-data">Glimpse of data</a></li>
+  </ul></li>
+  <li><a href="#data-2" id="toc-data-2" class="nav-link" data-scroll-target="#data-2">Data 2</a>
+  <ul class="collapse">
+  <li><a href="#introduction-and-data-1" id="toc-introduction-and-data-1" class="nav-link" data-scroll-target="#introduction-and-data-1">Introduction and data</a></li>
+  <li><a href="#research-question" id="toc-research-question" class="nav-link" data-scroll-target="#research-question">Research question</a>
+  <ul class="collapse">
+  <li><a href="#are-there-differences-in-the-way-that-customers-review-chain-vs.-independent-restaurants-and-do-these-differences-vary-depending-on-the-type-of-cuisine-or-location" id="toc-are-there-differences-in-the-way-that-customers-review-chain-vs.-independent-restaurants-and-do-these-differences-vary-depending-on-the-type-of-cuisine-or-location" class="nav-link" data-scroll-target="#are-there-differences-in-the-way-that-customers-review-chain-vs.-independent-restaurants-and-do-these-differences-vary-depending-on-the-type-of-cuisine-or-location">Are there differences in the way that customers review chain vs.&nbsp;independent restaurants, and do these differences vary depending on the type of cuisine or location?</a></li>
+  </ul></li>
+  <li><a href="#glimpse-of-data-1" id="toc-glimpse-of-data-1" class="nav-link" data-scroll-target="#glimpse-of-data-1">Glimpse of data</a></li>
+  </ul></li>
+  <li><a href="#data-3" id="toc-data-3" class="nav-link" data-scroll-target="#data-3">Data 3</a>
+  <ul class="collapse">
+  <li><a href="#introduction-and-data-2" id="toc-introduction-and-data-2" class="nav-link" data-scroll-target="#introduction-and-data-2">Introduction and data</a></li>
+  <li><a href="#research-question-1" id="toc-research-question-1" class="nav-link" data-scroll-target="#research-question-1">Research question</a>
+  <ul class="collapse">
+  <li><a href="#what-factors-are-most-strongly-associated-with-drivers-success-in-formula-1-racing-and-how-have-these-factors-changed-over-time" id="toc-what-factors-are-most-strongly-associated-with-drivers-success-in-formula-1-racing-and-how-have-these-factors-changed-over-time" class="nav-link" data-scroll-target="#what-factors-are-most-strongly-associated-with-drivers-success-in-formula-1-racing-and-how-have-these-factors-changed-over-time">What factors are most strongly associated with drivers’ success in Formula 1 racing, and how have these factors changed over time?</a></li>
+  </ul></li>
+  <li><a href="#glimpse-of-data-2" id="toc-glimpse-of-data-2" class="nav-link" data-scroll-target="#glimpse-of-data-2">Glimpse of data</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Wondrous Raichu</h1>
+<p class="subtitle lead">Project Proposal</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="data-1" class="level1">
+<h1>Data 1</h1>
+<section id="introduction-and-data" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-data">Introduction and data</h2>
+<ul>
+<li><p>Identify the source of the data.</p>
+<p>The dataset comes from <strong>Inside</strong> <strong>Airbnb</strong> (<a href="http://insideairbnb.com/get-the-data/" class="uri">http://insideairbnb.com/get-the-data/</a>), an open platform that provides data on Airbnb listings in different locations around the world.</p></li>
+<li><p>State when and how it was originally collected (by the original data curator, not necessarily how you found the data).</p>
+<p>The data gives NYC listings from the last quarter in 2022. It is aggregated through Airbnb’s public information on their website and shows all listings from that respective quarter at the particular time of publication (i.e., for this particular dataset, December 4th and 5th, 2022).&nbsp;</p></li>
+<li><p>Write a brief description of the observations.</p>
+<p>The observations published in this dataset contain all the pieces of information posted on a typical Airbnb listing. It describes the host and who they are, ratings on the host and place of stay, etc.</p></li>
+</ul>
+</section>
+<section id="research-questions" class="level2">
+<h2 class="anchored" data-anchor-id="research-questions">Research question(s)</h2>
+<section id="how-does-airbnb-listing-prices-depend-on-rating-of-listing-location-of-listing-amenities-included-in-the-listing-and-host-response-time" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-airbnb-listing-prices-depend-on-rating-of-listing-location-of-listing-amenities-included-in-the-listing-and-host-response-time">How does Airbnb listing prices depend on rating of listing, location of listing, amenities included in the listing, and host response time?</h3>
+<p>In this research question, we aim to understand what factors affect Airbnb listing prices. There are five variables: four independent variables (i.e., rating of listing, location of listing, amenities included in the listing, and host response time) and one dependent variable (i.e.&nbsp;listing price). Listing price, rating of listing, and host response time are quantitative variables, while location of listing and amenities included in the listing are categorical variables.</p>
+<p>This research question is important because it provides us with a better understanding of the Airbnb price mechanism, which can shed light on the broader dynamics of the sharing economy and the way in which online platforms like Airbnb are changing the traditional hospitality industry.</p>
+<p>Our hypothesis is that a high listing rating, a more comprehensive list of included amenities, a quick host response time, and a listing located in a safe and convenient location will all lead to higher listing prices.</p>
+</section>
+<section id="how-do-characteristics-i.e.-ratings-and-descriptions-of-listings-and-of-hosts-affect-the-prices-of-listings" class="level3">
+<h3 class="anchored" data-anchor-id="how-do-characteristics-i.e.-ratings-and-descriptions-of-listings-and-of-hosts-affect-the-prices-of-listings">How do characteristics (i.e., ratings and descriptions) of listings and of hosts affect the prices of listings?</h3>
+<p>In this research question, we aim to understand how the characteristics of listings and hots affect the prices of listings on Airbnb. There are five variables: four independent variables (i.e., rating of host, description of host, rating of listing, description of listing) and one dependent variable (i.e.&nbsp;listing price). Ratings and listing prices are quantitative variables, while descriptions are categorical variables.</p>
+<p>This research question is important because it highlights the strategies hosts take to make a good impression on potential guests and remain competitive in the crowded Airbnb marketplace. Moreover, for potential guests, understanding the strategies hosts use can help them make more informed decisions when selecting a listing that meets their needs and budget.</p>
+<p>Our hypothesis is that higher listing ratings and higher host ratings will lead to higher listing prices. Furthermore, listings and hosts with more detailed and attractive descriptions will lead to higher listing prices.</p>
+</section>
+<section id="what-are-the-most-popular-neighborhoods-for-airbnb-listings-and-how-does-this-popularity-vary-by-listing-type-and-price" class="level3">
+<h3 class="anchored" data-anchor-id="what-are-the-most-popular-neighborhoods-for-airbnb-listings-and-how-does-this-popularity-vary-by-listing-type-and-price">What are the most popular neighborhoods for Airbnb listings and how does this popularity vary by listing type and price?</h3>
+<p>In this research question, we aim to understand how the popularity of Airbnb listings depend on listing type and listing price. Here, we can associated popularity with high ratings and high number of reviews. There are three variables: two independent variables (i.e., listing type and listing price) and two dependent variables (i.e.&nbsp;ratings and number of reviews). Listing type is a categorical variable, while listing price, ratings, and number of reviews are quantitative variables.</p>
+<p>This research question is important as it can provide valuable insights into the preferences of travelers and market trends for Airbnb hosts and guests. It helps potential hosts to identify profitable areas for their listings and to understand the preferences of Airbnb customers. Identifying the most popular neighborhoods for Airbnb listings and analyzing how this popularity varies by listing type and price can help hosts adjust their pricing strategies and better target their listings, while guests can make more informed decisions on where to stay. Additionally, this research can shed light on the factors that influence the popularity of neighborhoods for Airbnb listings, providing valuable information for city planners, policymakers, and tourism agencies in shaping their urban development strategies and promoting tourism in specific areas.</p>
+<p>Our hypothesis is that the most popular neighborhood will be Manhattan because it is the center of business and entertainment. Moreover, we hypothesize that entire home/apt listings will be more popular compared to private or shared rooms and that lower-priced listings will be more popular than higher-priced ones.</p>
+</section>
+</section>
+<section id="glimpse-of-data" class="level2">
+<h2 class="anchored" data-anchor-id="glimpse-of-data">Glimpse of data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>airbnb_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/airbnb_data/airbnb_data.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview some rows</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(airbnb_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 75
+     id listing_url              scrape_id last_scraped source name  description
+  &lt;dbl&gt; &lt;chr&gt;                        &lt;dbl&gt; &lt;date&gt;       &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;      
+1  2595 https://www.airbnb.com/…   2.02e13 2022-12-05   city … Skyl… "Beautiful…
+2  5203 https://www.airbnb.com/…   2.02e13 2022-12-05   previ… Cozy… "Our best …
+3  5136 https://www.airbnb.com/…   2.02e13 2022-12-04   city … Spac… "We welcom…
+4  5121 https://www.airbnb.com/…   2.02e13 2022-12-05   city … Blis… "One room …
+5  6848 https://www.airbnb.com/…   2.02e13 2022-12-05   city … Only… "Comfortab…
+6  5178 https://www.airbnb.com/…   2.02e13 2022-12-05   city … Larg… "Please do…
+# ℹ 68 more variables: neighborhood_overview &lt;chr&gt;, picture_url &lt;chr&gt;,
+#   host_id &lt;dbl&gt;, host_url &lt;chr&gt;, host_name &lt;chr&gt;, host_since &lt;date&gt;,
+#   host_location &lt;chr&gt;, host_about &lt;chr&gt;, host_response_time &lt;chr&gt;,
+#   host_response_rate &lt;chr&gt;, host_acceptance_rate &lt;chr&gt;,
+#   host_is_superhost &lt;lgl&gt;, host_thumbnail_url &lt;chr&gt;, host_picture_url &lt;chr&gt;,
+#   host_neighbourhood &lt;chr&gt;, host_listings_count &lt;dbl&gt;,
+#   host_total_listings_count &lt;dbl&gt;, host_verifications &lt;chr&gt;, …</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Skim through data</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(airbnb_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">airbnb_data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">41533</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">75</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Date</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">logical</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">37</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 10%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">listing_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">41533</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">source</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">248</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">40242</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">description</td>
+<td style="text-align: right;">785</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">37137</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">neighborhood_overview</td>
+<td style="text-align: right;">17443</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">19392</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">picture_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">40390</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_url</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">43</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">26832</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_name</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9628</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_location</td>
+<td style="text-align: right;">7745</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1104</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_about</td>
+<td style="text-align: right;">18316</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14151</td>
+<td style="text-align: right;">26</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_response_time</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_response_rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_acceptance_rate</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_thumbnail_url</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">106</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">26362</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_picture_url</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">109</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">26362</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_neighbourhood</td>
+<td style="text-align: right;">8189</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">539</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_verifications</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">neighbourhood</td>
+<td style="text-align: right;">17443</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">191</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">neighbourhood_cleansed</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">25</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">223</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">neighbourhood_group_cleansed</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">property_type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">room_type</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bathrooms_text</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">amenities</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2028</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">35522</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">price</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1287</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: Date</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">last_scraped</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2022-12-04</td>
+<td style="text-align: left;">2022-12-05</td>
+<td style="text-align: left;">2022-12-05</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_since</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2008-08-22</td>
+<td style="text-align: left;">2022-12-02</td>
+<td style="text-align: left;">2016-04-04</td>
+<td style="text-align: right;">4649</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calendar_last_scraped</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">2022-12-04</td>
+<td style="text-align: left;">2022-12-05</td>
+<td style="text-align: left;">2022-12-05</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">first_review</td>
+<td style="text-align: right;">9393</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: left;">2009-04-23</td>
+<td style="text-align: left;">2022-12-04</td>
+<td style="text-align: left;">2019-12-15</td>
+<td style="text-align: right;">3772</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">last_review</td>
+<td style="text-align: right;">9393</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: left;">2011-05-12</td>
+<td style="text-align: left;">2022-12-04</td>
+<td style="text-align: left;">2022-09-15</td>
+<td style="text-align: right;">2715</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 6%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: left;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">host_is_superhost</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.21</td>
+<td style="text-align: left;">FAL: 32635, TRU: 8869</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_has_profile_pic</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: left;">TRU: 40904, FAL: 624</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_identity_verified</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: left;">TRU: 35262, FAL: 6266</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bathrooms</td>
+<td style="text-align: right;">41533</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calendar_updated</td>
+<td style="text-align: right;">41533</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">has_availability</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: left;">TRU: 35281, FAL: 6252</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">license</td>
+<td style="text-align: right;">41533</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">NaN</td>
+<td style="text-align: left;">:</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">instant_bookable</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: left;">FAL: 33123, TRU: 8410</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.728318e+17</td>
+<td style="text-align: right;">2.974371e+17</td>
+<td style="text-align: right;">2.59500e+03</td>
+<td style="text-align: right;">1.835861e+07</td>
+<td style="text-align: right;">4.117861e+07</td>
+<td style="text-align: right;">5.477978e+17</td>
+<td style="text-align: right;">7.741268e+17</td>
+<td style="text-align: left;">▇▁▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">scrape_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.022120e+13</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.02212e+13</td>
+<td style="text-align: right;">2.022120e+13</td>
+<td style="text-align: right;">2.022120e+13</td>
+<td style="text-align: right;">2.022120e+13</td>
+<td style="text-align: right;">2.022120e+13</td>
+<td style="text-align: left;">▁▁▇▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.400636e+08</td>
+<td style="text-align: right;">1.526932e+08</td>
+<td style="text-align: right;">2.43800e+03</td>
+<td style="text-align: right;">1.491162e+07</td>
+<td style="text-align: right;">6.561181e+07</td>
+<td style="text-align: right;">2.418897e+08</td>
+<td style="text-align: right;">4.899967e+08</td>
+<td style="text-align: left;">▇▂▂▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">host_listings_count</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">8.662000e+01</td>
+<td style="text-align: right;">5.183500e+02</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">4.559000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">host_total_listings_count</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.362600e+02</td>
+<td style="text-align: right;">7.735100e+02</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">3.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">1.201700e+04</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">latitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.073000e+01</td>
+<td style="text-align: right;">6.000000e-02</td>
+<td style="text-align: right;">4.05000e+01</td>
+<td style="text-align: right;">4.069000e+01</td>
+<td style="text-align: right;">4.072000e+01</td>
+<td style="text-align: right;">4.076000e+01</td>
+<td style="text-align: right;">4.091000e+01</td>
+<td style="text-align: left;">▁▂▇▅▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">longitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">-7.394000e+01</td>
+<td style="text-align: right;">6.000000e-02</td>
+<td style="text-align: right;">-7.42500e+01</td>
+<td style="text-align: right;">-7.398000e+01</td>
+<td style="text-align: right;">-7.395000e+01</td>
+<td style="text-align: right;">-7.392000e+01</td>
+<td style="text-align: right;">-7.371000e+01</td>
+<td style="text-align: left;">▁▁▇▂▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">accommodates</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.960000e+00</td>
+<td style="text-align: right;">2.080000e+00</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">4.000000e+00</td>
+<td style="text-align: right;">1.600000e+01</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bedrooms</td>
+<td style="text-align: right;">3822</td>
+<td style="text-align: right;">0.91</td>
+<td style="text-align: right;">1.380000e+00</td>
+<td style="text-align: right;">7.600000e-01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.400000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">beds</td>
+<td style="text-align: right;">941</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">1.650000e+00</td>
+<td style="text-align: right;">1.160000e+00</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">4.200000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_nights</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.859000e+01</td>
+<td style="text-align: right;">3.070000e+01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.000000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_nights</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5.324173e+04</td>
+<td style="text-align: right;">1.053830e+07</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">6.000000e+01</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_minimum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.864000e+01</td>
+<td style="text-align: right;">3.239000e+01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">7.000000e+00</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_minimum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.297000e+01</td>
+<td style="text-align: right;">4.853000e+01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.400000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_maximum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.243053e+06</td>
+<td style="text-align: right;">5.161702e+07</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">2.700000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_maximum_nights</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.122356e+06</td>
+<td style="text-align: right;">6.745119e+07</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">minimum_nights_avg_ntm</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.251000e+01</td>
+<td style="text-align: right;">4.738000e+01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.000000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: right;">1.250000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">maximum_nights_avg_ntm</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.398113e+06</td>
+<td style="text-align: right;">5.294218e+07</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">1.125000e+03</td>
+<td style="text-align: right;">2.147484e+09</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">availability_30</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">7.900000e+00</td>
+<td style="text-align: right;">1.014000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">1.500000e+01</td>
+<td style="text-align: right;">3.000000e+01</td>
+<td style="text-align: left;">▇▂▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">availability_60</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.192000e+01</td>
+<td style="text-align: right;">2.210000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.800000e+01</td>
+<td style="text-align: right;">4.200000e+01</td>
+<td style="text-align: right;">6.000000e+01</td>
+<td style="text-align: left;">▇▁▂▂▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">availability_90</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.681000e+01</td>
+<td style="text-align: right;">3.487000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">3.300000e+01</td>
+<td style="text-align: right;">7.000000e+01</td>
+<td style="text-align: right;">9.000000e+01</td>
+<td style="text-align: left;">▇▁▁▃▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">availability_365</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.432900e+02</td>
+<td style="text-align: right;">1.442800e+02</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">8.700000e+01</td>
+<td style="text-align: right;">3.120000e+02</td>
+<td style="text-align: right;">3.650000e+02</td>
+<td style="text-align: left;">▇▂▂▁▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">number_of_reviews</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.620000e+01</td>
+<td style="text-align: right;">5.618000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">2.500000e+01</td>
+<td style="text-align: right;">1.666000e+03</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">number_of_reviews_ltm</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">7.980000e+00</td>
+<td style="text-align: right;">1.856000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">8.000000e+00</td>
+<td style="text-align: right;">9.920000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">number_of_reviews_l30d</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">6.700000e-01</td>
+<td style="text-align: right;">1.550000e+00</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">7.400000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_rating</td>
+<td style="text-align: right;">9393</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">4.630000e+00</td>
+<td style="text-align: right;">7.200000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.600000e+00</td>
+<td style="text-align: right;">4.830000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_accuracy</td>
+<td style="text-align: right;">9841</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.750000e+00</td>
+<td style="text-align: right;">4.600000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.710000e+00</td>
+<td style="text-align: right;">4.890000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_cleanliness</td>
+<td style="text-align: right;">9831</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.630000e+00</td>
+<td style="text-align: right;">5.400000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.500000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_checkin</td>
+<td style="text-align: right;">9845</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.820000e+00</td>
+<td style="text-align: right;">4.100000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">4.950000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_communication</td>
+<td style="text-align: right;">9836</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.810000e+00</td>
+<td style="text-align: right;">4.300000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.800000e+00</td>
+<td style="text-align: right;">4.960000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">review_scores_location</td>
+<td style="text-align: right;">9848</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.740000e+00</td>
+<td style="text-align: right;">4.100000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.640000e+00</td>
+<td style="text-align: right;">4.860000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_scores_value</td>
+<td style="text-align: right;">9848</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.650000e+00</td>
+<td style="text-align: right;">4.900000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">4.550000e+00</td>
+<td style="text-align: right;">4.770000e+00</td>
+<td style="text-align: right;">4.950000e+00</td>
+<td style="text-align: right;">5.000000e+00</td>
+<td style="text-align: left;">▁▁▁▁▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calculated_host_listings_count</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.063000e+01</td>
+<td style="text-align: right;">6.887000e+01</td>
+<td style="text-align: right;">1.00000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">4.000000e+00</td>
+<td style="text-align: right;">4.870000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">calculated_host_listings_count_entire_homes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.131000e+01</td>
+<td style="text-align: right;">5.645000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">1.000000e+00</td>
+<td style="text-align: right;">4.870000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">calculated_host_listings_count_private_rooms</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">9.200000e+00</td>
+<td style="text-align: right;">4.009000e+01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">2.000000e+00</td>
+<td style="text-align: right;">3.450000e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">calculated_host_listings_count_shared_rooms</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">5.000000e-02</td>
+<td style="text-align: right;">5.900000e-01</td>
+<td style="text-align: right;">0.00000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">0.000000e+00</td>
+<td style="text-align: right;">1.500000e+01</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">reviews_per_month</td>
+<td style="text-align: right;">9393</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">1.280000e+00</td>
+<td style="text-align: right;">1.940000e+00</td>
+<td style="text-align: right;">1.00000e-02</td>
+<td style="text-align: right;">1.400000e-01</td>
+<td style="text-align: right;">5.800000e-01</td>
+<td style="text-align: right;">1.880000e+00</td>
+<td style="text-align: right;">1.029800e+02</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="data-2" class="level1">
+<h1>Data 2</h1>
+<section id="introduction-and-data-1" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-data-1">Introduction and data</h2>
+<ul>
+<li><p>Identify the source of the data.</p>
+<p>The dataset comes from <strong>Yelp</strong> <strong>Dataset</strong> (<a href="https://www.yelp.com/dataset" class="uri">https://www.yelp.com/dataset</a>), which provides a subset of the businesses, reviews, and user data on Yelp.</p></li>
+<li><p>State when and how it was originally collected (by the original data curator, not necessarily how you found the data).</p>
+<p>The Yelp dataset was originally collected by Yelp’s data team and is publicly available for research and educational purposes. The dataset includes information on businesses located in 10 metropolitan areas in four countries: the United States, Canada, the United Kingdom, and Germany.</p></li>
+<li><p>Write a brief description of the observations.</p>
+<p>The dataset is divided into several JSON files:</p>
+<ul>
+<li><p>business.json contains business data including location data, attributes, and categories</p></li>
+<li><p>review.json contains fill review text data&nbsp;</p></li>
+<li><p>user.json contains user data and all the metadata associated with users</p></li>
+<li><p>checkin.json contains data on checkins on a business</p></li>
+<li><p>tip.json contains data on tips written by a user on a business</p></li>
+</ul>
+<p>In this proposal, we will focus on the data outlined in business.json. The business.json file contains location details (address, city, state, etc.), number of stars, as well as number of reviews among other things.</p></li>
+</ul>
+</section>
+<section id="research-question" class="level2">
+<h2 class="anchored" data-anchor-id="research-question">Research question</h2>
+<section id="are-there-differences-in-the-way-that-customers-review-chain-vs.-independent-restaurants-and-do-these-differences-vary-depending-on-the-type-of-cuisine-or-location" class="level3">
+<h3 class="anchored" data-anchor-id="are-there-differences-in-the-way-that-customers-review-chain-vs.-independent-restaurants-and-do-these-differences-vary-depending-on-the-type-of-cuisine-or-location">Are there differences in the way that customers review chain vs.&nbsp;independent restaurants, and do these differences vary depending on the type of cuisine or location?</h3>
+<p>In this research question, we aim to understand how customers view chain and independent restaurants. Customer perceptions can be analyzed through ratings and reviews. There are five variables: three independent variables (i.e., type of restaurant, type of cuisine, and location) and two dependent variables (i.e., ratings and reviews). Ratings are quantitative variables, while reviews, type of restaurant, type of cuisine, and location are categorical variables.</p>
+<p>This research question is important because it can help restaurant owners and managers to better understand customer perceptions and preferences towards chain and independent restaurants. By examining whether differences in customer reviews vary based on cuisine type or location, insights can be gained into the factors that influence customer satisfaction and provide guidance on how to improve customer experiences.</p>
+<p>Our hypothesis is that customers may perceive chain and independent restaurants differently, with chain restaurants being perceived as more consistent and reliable in terms of quality and service, while independent restaurants may be seen as more unique and offering more personalized experiences. The differences in customer perceptions may also vary depending on the type of cuisine or location, with certain cuisines or cities having a stronger preference for chain or independent restaurants.</p>
+</section>
+</section>
+<section id="glimpse-of-data-1" class="level2">
+<h2 class="anchored" data-anchor-id="glimpse-of-data-1">Glimpse of data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Consulted Professor Soltoff on how to rectangle dataset</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>yelp_raw <span class="ot">&lt;-</span> <span class="fu">read_lines</span>(<span class="at">file =</span> <span class="st">"data/yelp_data/yelp_academic_dataset_business.json"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>yelp_list <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="at">.x =</span> yelp_raw, <span class="at">.f =</span> fromJSON)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>yelp_data <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">yelp =</span> yelp_list) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_wider</span>(<span class="at">col =</span> yelp)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview some rows</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(yelp_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 14
+  business_id     name  address city  state postal_code latitude longitude stars
+  &lt;chr&gt;           &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;
+1 Pns2l4eNsfO8kk… Abby… 1616 C… Sant… CA    93101           34.4    -120.    5  
+2 mpf3x-BjTdTEA3… The … 87 Gra… Afft… MO    63123           38.6     -90.3   3  
+3 tUFrWirKiKi_TA… Targ… 5255 E… Tucs… AZ    85711           32.2    -111.    3.5
+4 MTSW4McQd7CbVt… St H… 935 Ra… Phil… PA    19107           40.0     -75.2   4  
+5 mWMc6_wTdE0EUB… Perk… 101 Wa… Gree… PA    18054           40.3     -75.5   4.5
+6 CF33F8-E6oudUQ… Soni… 615 S … Ashl… TN    37015           36.3     -87.1   2  
+# ℹ 5 more variables: review_count &lt;int&gt;, is_open &lt;int&gt;, attributes &lt;list&gt;,
+#   categories &lt;chr&gt;, hours &lt;list&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Skim through data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(yelp_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">yelp_data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">150346</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">list</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">business_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">150346</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">114117</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">address</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">110</td>
+<td style="text-align: right;">5127</td>
+<td style="text-align: right;">122844</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">city</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1416</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">state</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">postal_code</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">73</td>
+<td style="text-align: right;">3362</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">categories</td>
+<td style="text-align: right;">103</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">503</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">83160</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: list</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 14%">
+<col style="width: 20%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">min_length</th>
+<th style="text-align: right;">max_length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">attributes</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">87662</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">hours</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">49823</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">latitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">36.67</td>
+<td style="text-align: right;">5.87</td>
+<td style="text-align: right;">27.56</td>
+<td style="text-align: right;">32.19</td>
+<td style="text-align: right;">38.78</td>
+<td style="text-align: right;">39.95</td>
+<td style="text-align: right;">53.68</td>
+<td style="text-align: left;">▅▂▇▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">longitude</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-89.36</td>
+<td style="text-align: right;">14.92</td>
+<td style="text-align: right;">-120.10</td>
+<td style="text-align: right;">-90.36</td>
+<td style="text-align: right;">-86.12</td>
+<td style="text-align: right;">-75.42</td>
+<td style="text-align: right;">-73.20</td>
+<td style="text-align: left;">▅▁▁▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">stars</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.60</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">4.50</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▃▂▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">review_count</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">44.87</td>
+<td style="text-align: right;">121.12</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">15.00</td>
+<td style="text-align: right;">37.00</td>
+<td style="text-align: right;">7568.00</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">is_open</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">0.40</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▂▁▁▁▇</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="data-3" class="level1">
+<h1>Data 3</h1>
+<section id="introduction-and-data-2" class="level2">
+<h2 class="anchored" data-anchor-id="introduction-and-data-2">Introduction and data</h2>
+<ul>
+<li><p>Identify the source of the data.</p>
+<p>The dataset was downloaded from <strong>Kaggle</strong> (<a href="https://www.kaggle.com/code/ahmetburabua/drive-to-survive/input?select=final.csv" class="uri">https://www.kaggle.com/code/ahmetburabua/drive-to-survive/input?select=final.csv</a>).</p></li>
+<li><p>State when and how it was originally collected (by the original data curator, not necessarily how you found the data).</p>
+<p>The dataset was created by Ahmet Buğra Buğa, a data analyst at Mathrics (based on the Kaggle account). The account did not say much about the data curation process other than the fact that “the dataset was collected from public places and combined.” We presume that the data was scraped from sources like Wikipedia and the Ergast Developer API (<a href="http://ergast.com/mrd/" class="uri">http://ergast.com/mrd/</a>). In the Kaggle page, we can also access yearly race data from 1983-2021. The Kaggler was able to compress the data into one “final.csv” file.</p></li>
+<li><p>Write a brief description of the observations.</p>
+<p>The observations included in the “final.csv” file contain all the pieces of information relevant to a particular race. The dataset tells you which circuit the race is on, whether the weather during the race is warm, cold, dry, wet, and/or cloudy, and what grid position a driver started the race in among other things.</p></li>
+</ul>
+</section>
+<section id="research-question-1" class="level2">
+<h2 class="anchored" data-anchor-id="research-question-1">Research question</h2>
+<section id="what-factors-are-most-strongly-associated-with-drivers-success-in-formula-1-racing-and-how-have-these-factors-changed-over-time" class="level3">
+<h3 class="anchored" data-anchor-id="what-factors-are-most-strongly-associated-with-drivers-success-in-formula-1-racing-and-how-have-these-factors-changed-over-time">What factors are most strongly associated with drivers’ success in Formula 1 racing, and how have these factors changed over time?</h3>
+<p>In this research question, we aim to understand the factors that contribute to success in Formula 1 racing, including the race circuit, weather, starting grid position, and drivers’ ages. Here, we equate drivers’ success with placing a podium in the race (i.e., first, second, and third place). There are five variables: four independent variables (i.e., the race circuit, weather, starting grid position, and drivers’ ages) and one dependent variable (i.e.&nbsp;finishing grid position). Starting and finishing grid positions and drivers’ ages are quantitative variables, while race circuit and weather are categorical variables. Other quantitative variables we could include in our analysis when it comes to success include driver points and qualifying times.</p>
+<p>Formula 1 racing is one of the most popular and competitive sports in the world, and understanding the factors that contribute to success in this field is crucial for teams, drivers, and fans. By identifying the most important factors associated with success in Formula 1 racing, teams can optimize their strategies and improve their chances of winning, while fans can gain a deeper appreciation for the skills and abilities required to excel in this sport. Moreover, studying how these factors have changed over time can provide insights into the evolution of Formula 1 racing and shed light on the impact of technological advancements, changes in regulations, and other factors on the sport.</p>
+<p>Our hypothesis is that warm and dry weather conditions are more conducive to better driver performance compared to cold, cloudy, and/or wet weather. Dry roads provide better traction for tires, enabling drivers to control the car more effectively. On the other hand, wet weather can cause the tires to slip, potentially resulting in loss of control. In cold weather, the tires and mechanical components may not reach optimal operating temperatures, leading to reduced grip and responsiveness of the car.</p>
+<p>Furthermore, we hypothesize that there is an optimal age for drivers in Formula 1, as being too young may lead to lack of experience and being too old may result in slower reaction time.</p>
+</section>
+</section>
+<section id="glimpse-of-data-2" class="level2">
+<h2 class="anchored" data-anchor-id="glimpse-of-data-2">Glimpse of data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f1_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/f1_data/f1_data.csv"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Preview some rows</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(f1_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 22
+   ...1 season round circuit_id  weather_warm weather_cold weather_dry
+  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;lgl&gt;        &lt;lgl&gt;        &lt;lgl&gt;      
+1    14   1983     1 jacarepagua FALSE        FALSE        TRUE       
+2     5   1983     1 jacarepagua FALSE        FALSE        TRUE       
+3     3   1983     1 jacarepagua FALSE        FALSE        TRUE       
+4     0   1983     1 jacarepagua FALSE        FALSE        TRUE       
+5     6   1983     1 jacarepagua FALSE        FALSE        TRUE       
+6     8   1983     1 jacarepagua FALSE        FALSE        TRUE       
+# ℹ 15 more variables: weather_wet &lt;lgl&gt;, weather_cloudy &lt;lgl&gt;, driver &lt;chr&gt;,
+#   nationality &lt;chr&gt;, constructor &lt;chr&gt;, grid &lt;dbl&gt;, podium &lt;dbl&gt;,
+#   driver_points &lt;dbl&gt;, driver_wins &lt;dbl&gt;, driver_standings_pos &lt;dbl&gt;,
+#   constructor_points &lt;dbl&gt;, constructor_wins &lt;dbl&gt;,
+#   constructor_standings_pos &lt;dbl&gt;, qualifying_time &lt;dbl&gt;, driver_age &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Skim through data</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(f1_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">f1_data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">14794</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">22</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">logical</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">circuit_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">driver</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">232</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nationality</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">constructor</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: logical</strong></p>
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: left;">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">weather_warm</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.39</td>
+<td style="text-align: left;">FAL: 9063, TRU: 5731</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weather_cold</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: left;">FAL: 14473, TRU: 321</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weather_dry</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: left;">FAL: 11525, TRU: 3269</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">weather_wet</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: left;">FAL: 13306, TRU: 1488</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">weather_cloudy</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: left;">FAL: 12999, TRU: 1795</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 9%">
+<col style="width: 12%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 4%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">…1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7465.31</td>
+<td style="text-align: right;">4350.15</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3698.25</td>
+<td style="text-align: right;">7403.5</td>
+<td style="text-align: right;">11232.75</td>
+<td style="text-align: right;">15085.0</td>
+<td style="text-align: left;">▇▇▇▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">season</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2001.59</td>
+<td style="text-align: right;">11.24</td>
+<td style="text-align: right;">1983</td>
+<td style="text-align: right;">1992.00</td>
+<td style="text-align: right;">2001.0</td>
+<td style="text-align: right;">2012.00</td>
+<td style="text-align: right;">2021.0</td>
+<td style="text-align: left;">▇▇▆▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">round</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9.19</td>
+<td style="text-align: right;">5.12</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">9.0</td>
+<td style="text-align: right;">13.00</td>
+<td style="text-align: right;">21.0</td>
+<td style="text-align: left;">▇▆▆▆▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">grid</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.76</td>
+<td style="text-align: right;">6.70</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">12.0</td>
+<td style="text-align: right;">17.00</td>
+<td style="text-align: right;">27.0</td>
+<td style="text-align: left;">▇▆▆▆▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">podium</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.90</td>
+<td style="text-align: right;">6.77</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">12.0</td>
+<td style="text-align: right;">17.00</td>
+<td style="text-align: right;">27.0</td>
+<td style="text-align: left;">▇▆▆▆▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">driver_points</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">19.94</td>
+<td style="text-align: right;">42.08</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">19.00</td>
+<td style="text-align: right;">387.0</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">driver_wins</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.36</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">13.0</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">driver_standings_pos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">10.66</td>
+<td style="text-align: right;">7.67</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">10.0</td>
+<td style="text-align: right;">17.00</td>
+<td style="text-align: right;">30.0</td>
+<td style="text-align: left;">▇▅▅▃▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">constructor_points</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">40.06</td>
+<td style="text-align: right;">81.62</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">8.0</td>
+<td style="text-align: right;">41.00</td>
+<td style="text-align: right;">722.0</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">constructor_wins</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">1.95</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">18.0</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">constructor_standings_pos</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5.86</td>
+<td style="text-align: right;">3.83</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">6.0</td>
+<td style="text-align: right;">9.00</td>
+<td style="text-align: right;">20.0</td>
+<td style="text-align: left;">▇▆▅▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">qualifying_time</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.55</td>
+<td style="text-align: right;">8.00</td>
+<td style="text-align: right;">-77</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.1</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">904.6</td>
+<td style="text-align: left;">▇▁▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">driver_age</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">28.59</td>
+<td style="text-align: right;">4.73</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">25.00</td>
+<td style="text-align: right;">28.0</td>
+<td style="text-align: right;">32.00</td>
+<td style="text-align: right;">43.0</td>
+<td style="text-align: left;">▂▇▇▅▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

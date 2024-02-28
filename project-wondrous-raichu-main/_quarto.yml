@@ -1,0 +1,27 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  navbar:
+    left:
+      - href: index.qmd
+      - text: "Proposal"
+        href: proposal.qmd
+      - text: "Exploratory data analysis"
+        href: eda.qmd
+      - text: "Pre-registered analyses"
+        href: pre-registration.qmd
+      - text: "Presentation"
+        href: presentation.qmd
+      - text: "Report"
+        href: report.qmd
+      - text: "Appendicies"
+        href: appendicies.qmd
+      - text: "About"
+        href: about.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true

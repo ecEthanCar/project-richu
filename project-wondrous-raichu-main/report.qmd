@@ -1,0 +1,1021 @@
+---
+title: "Analyzing Airbnb Data"
+subtitle: "Report"
+format: html
+editor: visual
+execute:
+  echo: false
+  message: false
+  warning: false
+  cache: true
+---
+
+```{r}
+#| label: load-pkgs
+#| message: false
+
+library(tidyverse)
+library(skimr)
+library(jsonlite)
+library(scales)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(patchwork)
+library(tidymodels)
+library(gridExtra)
+library(broom)
+
+theme_set(theme_minimal())
+set.seed(123)
+ctrl_grid <- control_grid(save_workflow = TRUE)
+```
+
+```{r}
+#| label: load-data
+#| message: false
+
+# Load airbnb listings data (03/06/2023)
+airbnb_data <- read_csv("data/airbnb_data/03_06_2023_listings.csv", 
+    col_types = cols(price = col_number()))
+
+# Remove listings with price outliers
+airbnb_data <- airbnb_data |> 
+  filter(price != 0) |> 
+  filter(price < quantile(airbnb_data$price, 0.99))
+
+# Load amenities dataframe from EDA
+amenities <- read_csv("data/airbnb_data/amenities_data.csv")
+
+bathroom_tidy <- read_csv("data/airbnb_data/bathroom_tidy.csv")
+
+extra_all <- read_csv("data/airbnb_data/extra_amenities.csv")
+extra_all <- extra_all |> drop_na() |> filter(price != 0)
+
+wifi_work_quiet <- read_csv("data/airbnb_data/wfh_amenities.csv")
+wifi_work_quiet <- wifi_work_quiet |> drop_na() |> filter(price != 0)
+
+main_variable_dataset <- read_csv("data/airbnb_data/main_variable_dataset.csv")
+```
+
+# Introduction
+
+Since its 2008 launch, Airbnb has transformed the travel and hospitality sector. Generating billions in revenue and offering over six million listings globally---surpassing the top three hotel chains combined---it has disrupted conventional travel and enabled everyday people to become hospitality providers. Studies reveal a 1% rise in Airbnb listings leads to a 0.03% drop in hotel revenues in major US cities (Dogru et al., 2019). As Airbnb expands and influences industries, research is crucial to comprehend its market and user impacts. Specifically, our research aims to identify key Airbnb factors that have strong predictability for price. Through both univariate and multivariate regression analysis and various hypotheses testings, our findings conclude that the following eight variables have the highest degree of impact on Airbnb's price mechanism: the listing's location, cleanliness score, room type, number of bedrooms and bathrooms, and the presence of a microwave, washer, and dryer.
+
+# Data description
+
+In this report, we utilized the dataset obtained from [Inside Airbnb](http://insideairbnb.com/get-the-data/), an open platform offering global Airbnb listing data to empower communities with insights on Airbnb's residential impact. The dataset is aggregated through Airbnb's public information on their website and contains information on over 42,000 listings in New York City as of March 6, 2023.
+
+In terms of what processes might have influenced what data was observed and what was not, there is not much, if any. The data utilizes public information compiled from the Airbnb website, so, if a listing is on the website at the time of scraping, it will be on the dataset. No private information is being used: names, photographs, listings, and review details are all public. Furthermore, not much preprocessing was done (or explained) on the data. Evidence of this can be seen in the data. For example, the price is noted as a `chr`, which is likely due to it being directly scraped from the webpage.
+
+All the Airbnb data scraped by Inside Airbnb is public, so all Airbnb hosts should be aware that their data and information can be scraped and used for other purposes. The dataset's observations are NYC Airbnb listings, with attributes describing listings and hosts, such as `price`, `host_is_superhost`, `room_type`, and `review_scores_rating`. We performed our own data cleaning, which can be seen in [Appendix 1](appendicies.qmd#appendix-1-data-cleaning).
+
+# What affects price?
+
+This report examined factors influencing Airbnb listing prices in New York City. We analyzed three main categories: (1) location, (2) listing characteristics (e.g., bedrooms, amenities), and (3) host characteristics (e.g., super-host status, response time). Each variable is summarized and its relationship with price is displayed. We fit linear regression models for individual variables and perform a multivariable linear regression at the end, as well as fit machine learning models to create a price predictor model.
+
+We observed that NYC Airbnb listing prices were heavily right-skewed, regardless of which borough they were situated in. While these prices are outliers, they should be included in this particular evaluation to consider all of the variability in prices. As such, we decided to conduct any model fitting to log(price).
+
+## Analysis 1: Location
+
+We found that the median prices of listings are different in the five NYC boroughs. Naturally, we wanted to determine how much variability in listing prices location accounts for. Fitting a linear regression between log(price) and borough, we produce the following equation:
+
+```{r}
+#| label: linear-regression-boroughs
+
+borough_fit_2 <- linear_reg() |>
+  fit(price ~ neighbourhood_group_cleansed, data = airbnb_data |>
+  select(id, price, neighbourhood_cleansed, neighbourhood_group_cleansed) |>
+  drop_na() |>
+  filter(price != 0) |>
+  mutate(price = log(price)))
+
+borough_fit_2 <- linear_reg() |>
+  fit(price ~ neighbourhood_group_cleansed, data = airbnb_data |>
+  select(id, price, neighbourhood_cleansed, neighbourhood_group_cleansed) |>
+  drop_na() |>
+  filter(price != 0) |>
+  mutate(price = log(price)))
+
+glance_borough_res <- glance(borough_fit_2)$r.squared
+```
+
+$$
+\begin{split}
+\widehat{log(Airbnb~listing~price)} = 4.4947394 + 0.2206278\times Brooklyn + 0.631\times Manhattan\\+ 0.0288866 \times Queens + 0.1409128 \times Staten~Island
+\end{split}
+$$
+
+Interpreting the intercept, we predict that a listing that is located in the Bronx will have a price of around $e^{4.4947394} \approx \$89.54$ per night.
+
+Interpreting the slopes:
+
+-   A listing in Brooklyn is expected to be $e^{0.2206278} \approx \$1.25$ higher per night compared to one in the Bronx, on average.
+
+-   A listing in Manhattan is expected to be $e^{0.6314541} \approx \$1.88$ higher per night compared to one in the Bronx, on average.
+
+-   A listing in Queens is expected to be $e^{0.0288866} \approx \$1.03$ higher per night compared to one in the Bronx, on average.
+
+-   And, a listing on Staten Island is expected to be $e^{0.1409128} \approx \$1.15$ higher per night compared to one in the Bronx, on average.
+
+In addition, we see that the R^2^ value of this univariate linear regression model is `r signif(glance_borough_res, 3)`. In other words, borough accounts for `r signif(glance_borough_res, 3)*100`% of price variability. Because this is a low R^2^ value, we performed the same regression on neighborhoods (i.e. Chelsea, Midtown, Williamsburg, etc.) for increased categorical coefficients, expecting to capture more variability on a regional basis.
+
+```{r}
+#| label: linear-regression-neighborhoods
+
+neighborhood_fit_2 <- linear_reg() |>
+  fit(price ~ neighbourhood_cleansed, data = airbnb_data |>
+  select(id, price, neighbourhood_cleansed, neighbourhood_group_cleansed) |>
+  drop_na() |>
+  filter(price != 0) |>
+  mutate(price = log(price)))
+
+glance_neighborhood_res <- glance(neighborhood_fit_2)$r.squared
+```
+
+Due to the 221 different coefficients within this regression, showing the equation for this regression seem unreasonable. However, we can report that this model has an R^2^ value of `r signif(glance_neighborhood_res, 3)`, which is expected.
+
+Comparing the adjusted R^2^ values of both models, we can determine that the linear model considering neighborhoods is better for log(price) predictability. However, moving forward, we will use the variable for boroughs to account for the listing location as using neighborhood levels might cause overfitting.
+
+## Analysis 2: Listing characteristics
+
+### Room type, number of bedrooms, and number of bathrooms
+
+All data analysis on room type, number of bedrooms, and number of bathrooms can be found in the Appendix. However, to summarize:
+
+-   Most NYC Airbnb listings are "Entire home/apt" and "Private room" options. "Hotel room" is the priciest, followed by "Entire home/apt," "Private room," and "Shared room."
+
+-   The distribution of the number of bedrooms is heavily right-skewed: most NYC Airbnb listings have one or two bedrooms. Generally, prices rise with the number of bedrooms.
+
+-   Similarly, the distribution of the number of bathrooms is heavily right-skewed, with most having one bathroom. Generally, prices rise with the number of bathrooms.
+
+```{r}
+#| label: linear-regression-room-type
+
+price_roomtype_fit <- linear_reg() |>
+  fit(log(price) ~ room_type, data = airbnb_data)
+```
+
+```{r}
+#| label: linear-regression-bedroom-number
+
+price_bedrooms_fit <- linear_reg() |>
+  fit(log(price) ~ bedrooms, data = airbnb_data)
+```
+
+```{r}
+#| label: linear-regression-bathroom-number
+
+price_bathrooms_fit <- linear_reg() |>
+  fit(log(price) ~ bathrooms, data = bathroom_tidy)
+```
+
+We fitted univariate linear regression models with all three variables to see how much variability in price is explained by each variable.
+
+```{r}
+#| label: linear-regression-all-listing-char
+
+listing_char_table <- tribble(
+  ~ `Characteristic`, ~ `R-squared`,
+  "Room type", signif(glance(price_roomtype_fit)$r.squared, 3),
+  "Number of bedrooms", signif(glance(price_bedrooms_fit)$r.squared, 3),
+  "Number of bathrooms", signif(glance(price_bathrooms_fit)$r.squared, 3)
+) |> 
+  arrange(desc(`R-squared`))
+
+kable(listing_char_table, 
+             align = "l", size = "small") |> 
+  kable_classic()
+```
+
+We see that room type has the highest R^2^ value, which means it accounts for the most variability in price amongst the three listing characteristics. This suggests that room type might be one of the better variables to use to predict price - we will test this in our [multivariate analysis](report.qmd#fitting-a-multivariate-linear-regression-model).
+
+### Extra amenities
+
+Next, we want to look into how amenities affect Airbnb prices. On this [page](https://www.airbnb.com/resources/hosting-homes/a/the-amenities-guests-want-25), Airbnb Resource Center talks about some amenities guests look for, which include dining basics, coffee & tea, and cleaning supplies among others. We want to test whether having extra amenities impacts price. In our analysis, we include the following as "extras": air conditioning, heating, dishes and silverware, cooking basics, microwave, coffee maker, washer, and dryer. We first visualize the proportion of listings that have all the extra amenities included.
+
+```{r}
+#| label: extra-amenities-borough-vis
+#| fig-height: 3
+#| fig-width: 7
+#| fig-align: center
+
+extra_all_neighbourhood <-
+  merge(extra_all, airbnb_data |>
+          select(id, price,
+                 neighbourhood_group_cleansed, neighbourhood_cleansed)) |>
+  select(id, all_extras, price,
+         neighbourhood_group_cleansed, neighbourhood_cleansed) |>
+  drop_na()
+
+extra_all_neighbourhood |> 
+  mutate(
+    neighbourhood_group_cleansed = fct_relevel(
+      .f = neighbourhood_group_cleansed,
+      "Queens", "Bronx", "Manhattan", "Brooklyn", "Staten Island"),
+    all_extras = factor(ifelse(all_extras, "Yes", "No"))
+  ) |> 
+  ggplot(aes(y = neighbourhood_group_cleansed, fill = all_extras)) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(labels = label_percent()) +
+  scale_fill_viridis_d(breaks = c("Yes", "No")) +
+  labs(
+    y = "",
+    x = "",
+    title = "Extra Amenities Breakdown by NYC boroughs",
+    subtitle = "Staten Island, Brooklyn have highest proportion of listings that offer all extras",
+    fill = "Are extra amenities included?",
+    caption = '"Extra amenities" refer to air conditioning, heating, dishes and silverware, cooking basics, \nmicrowave, coffee maker, free street parking, washer, and dryer.'
+  ) + 
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.box.margin = margin(0))
+```
+
+We see that Staten Island and Brooklyn are the two boroughs with the highest proportion of listings that offer all the extra amenities. However, it is quite evident that the majority of listings do not have all the extras and that the distribution is quite similar between boroughs. In other words, any impact extra amenities have on price is likely to be borough-independent.
+
+To figure out if having all the extra amenities make a difference in price, we first group the listings by whether or not they have all the extra amenities or not and calculate the mean prices of each group. See [Appendix 2B](appendicies.qmd#appendix-2b-proportion-of-listings-with-extra-amenities-and-price-difference).
+
+We indeed see that listings that offer all the extra amenities have a median price of \$175, while listings that do not offer all the extra amenities have a median price of \$120. To confirm that this is statistically significant, we can do a hypothesis testing. We will set a threshold value of 0.05.
+
+$H_0:\eta_{yes}-\eta_{no}=0$. The difference in the true median price of listings that offer all extra amenities and those that do not is zero.
+
+$H_A:\eta_{yes}-\eta_{no}>0$. The difference in the true median price of listings that offer all extra amenities and those that do not is greater than zero.
+
+```{r}
+#| label: extra-hypothesis-testing
+
+point_diff_medians <- extra_all_neighbourhood |> 
+  specify(price ~ all_extras) |> 
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+null_dist_diff_medians <- extra_all_neighbourhood |> 
+  specify(price ~ all_extras) |> 
+  hypothesise(null = "independence") |> 
+  generate(reps = 1000, type = "permute") |> 
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+extra_p <- signif(get_p_value(null_dist_diff_medians, obs_stat = point_diff_medians, direction = "greater"),3)
+```
+
+We observe a p-value of `r extra_p`, which is less than our threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis: the data provide convincing evidence that the median price of listings that include all the extra amenities are higher than the median price of listings that do not.
+
+How much higher of a price can a host expect if they include all the extra amenities? To figure this out, we can generate a 95% confidence interval to see how much of a price increase a host can expect if they were to include all the extra amenities.
+
+```{r}
+#| label: extra-confidence
+
+boot_dist_extra <- extra_all_neighbourhood |> 
+  specify(price ~ all_extras) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
+  calculate(stat = "diff in means", order = c(TRUE, FALSE))
+ci_95_extra <- get_ci(x = boot_dist_extra, level = 0.95)
+```
+
+From our analysis, we are 95% confident that listings that include all the extra amenities will have median prices that are between \$`r signif(ci_95_extra$lower_ci, 2)` to \$`r signif(ci_95_extra$upper_ci, 2)` higher than those that do not include all the extra amenities. This is an important finding because it can help hosts increase their earnings by offering extra amenities.
+
+Let's now run a linear regression between each amenity and price. By doing so, we can learn how much variability in price is explained by whether a listing has a certain amenity or not. We can also find out which amenities hosts should focus on having in their listings. See [Appendix 2C](appendicies.qmd#appendix-2c-additive-and-interactive-linear-regressions-with-respect-to-extra-amenities) for further analysis.
+
+```{r}
+#| label: extra-amenities-individual-regression
+
+ac_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ air_conditioning, data = extra_all)
+
+heating_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ heating, data = extra_all)
+
+dishes_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ dishes_and_silverware, data = extra_all)
+
+cooking_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ cooking_basics, data = extra_all)
+
+microwave_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ microwave, data = extra_all)
+
+coffee_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ coffee_maker, data = extra_all)
+
+washer_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ washer, data = extra_all)
+
+dryer_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ dryer, data = extra_all)
+```
+
+```{r}
+#| label: extra-amenities-individual-regression-table
+
+individual_amenities_table <- tribble(
+  ~ `Amenity`, ~ `R-squared`,
+  "Air conditioning", signif(glance(ac_log_price_linear_fit)$r.squared, 3),
+  "Heating", signif(glance(heating_log_price_linear_fit)$r.squared, 3),
+  "Dishes and silverware", signif(glance(dishes_log_price_linear_fit)$r.squared, 3),
+  "Cooking basics", signif(glance(cooking_log_price_linear_fit)$r.squared, 3),
+  "Microwave", signif(glance(microwave_log_price_linear_fit)$r.squared, 3),
+  "Coffee maker", signif(glance(ac_log_price_linear_fit)$r.squared, 3),
+  "Washer", signif(glance(washer_log_price_linear_fit)$r.squared, 3),
+  "Dryer", signif(glance(dryer_log_price_linear_fit)$r.squared, 3),
+) |> 
+  arrange(desc(`R-squared`))
+
+kable(individual_amenities_table,
+             align = "l") |> 
+  kable_classic()
+```
+
+We see that the top two amenities by R^2^ value are the washer and dryer. We can infer that these two amenities affect the price the most out of the list of eight extra amenities we started with, irrespective of which borough the listing is located in. We will test this in our [multivariate analysis](report.qmd#fitting-a-multivariate-linear-regression-model).
+
+### Work-from-home criteria
+
+Upon analyzing the most frequently mentioned amenities in Airbnb listings in New York City, we observed that "dedicated workspace" appears in the top 20 amenities, which led us to think that work-from-home setups may impact price. In addition to a dedicated workspace, there are several other important amenities that Airbnb guests may be looking for in a WFH setup, including reliable high-speed internet, comfortable seating and good lighting, and a quiet environment. To identify listings that are WFH-appropriate, we established three criteria: 1) there is Wifi, 2) there is a dedicated workspace, and 3) the listing must be located in a quiet environment.
+
+```{r}
+#| label: wfh-borough-vis
+#| fig-height: 3
+#| fig-width: 7
+#| fig-align: center
+
+wfh_borough_vis <- 
+  wifi_work_quiet |> 
+  mutate(
+    type = case_when(
+      wifi_only ~ "Wifi only",
+      wifi_workspace_only ~ "Wifi and workspace only",
+      all_three ~ "Wifi, workspace, and quiet",
+      TRUE ~ "None"
+    ) 
+  ) |> 
+  mutate(
+    type = fct_relevel(.f = type,
+                       "None",
+                       "Wifi only",
+                       "Wifi and workspace only",
+                       "Wifi, workspace, and quiet"
+                       )
+  ) |>
+  select(id, neighbourhood_group_cleansed, type) 
+
+wfh_borough_vis |> 
+  mutate(
+    neighbourhood_group_cleansed = fct_relevel(.f = neighbourhood_group_cleansed,
+                                               "Manhattan",
+                                               "Brooklyn",
+                                               "Queens",
+                                               "Bronx",
+                                               "Staten Island")
+  ) |> 
+  ggplot(aes(y = neighbourhood_group_cleansed, fill = type)) +
+  geom_bar(position = "fill") +
+  scale_x_continuous(labels = label_percent()) +
+  scale_fill_viridis_d(breaks = c("Wifi, workspace, and quiet",
+                                  "Wifi and workspace only",
+                                  "Wifi only",
+                                  "None")) +
+  labs(
+    x = "",
+    y = "",
+    fill = "",
+    title = "Work-from-home Amenities Breakdown by NYC boroughs",
+    subtitle = "Staten Island, Bronx have highest proportion of listings that satisfy all three criteria"
+  ) + 
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        legend.box.margin = margin(0))
+```
+
+We see that Staten Island and the Bronx are the two boroughs with the highest proportion of listings with all three criteria met. Otherwise, the distribution of proportions is quite similar between boroughs. In other words, any impact WFH amenities have on price is likely to be borough-independent.
+
+To figure out if satisfying all the WFH criteria makes a difference in price, we first group the listings by whether or not they satisfy all WFH criteria or not and calculated the median prices of each group. See [Appendix 2D](appendicies.qmd#appendix-2d-proportion-of-listings-with-wfh-amenities-and-price-difference).
+
+We indeed see that listings that satisfy all WFH criteria have a median price of \$130, while listings that do not offer all the extra amenities have a median price of \$124. To confirm that this is statistically significant, we can do a hypothesis testing. We will set a threshold value of 0.05.
+
+$H_0:\eta_{satisfed}-\eta_{not~satisfed}=0$. The difference in the true median price of listings that satisfy all WFH criteria and those that do not is zero.
+
+$H_A:\eta_{satisfed}-\eta_{not~satisfed}>0$. The difference in the true median price of listings that satisfy all WFH criteria and those that do not is greater than zero.
+
+```{r}
+#| label: wfh-hypothesis-testing
+
+point_diff_medians_wfh <- wifi_work_quiet |> 
+  specify(price ~ all_three) |> 
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+null_dist_diff_medians_wfh <- wifi_work_quiet |> 
+  specify(price ~ all_three) |> 
+  hypothesise(null = "independence") |> 
+  generate(reps = 1000, type = "permute") |> 
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+wfh_p <- get_p_value(null_dist_diff_medians_wfh, obs_stat = point_diff_medians_wfh, direction = "greater")
+```
+
+We observe a p-value of `r wfh_p`, which is less than the threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis: the data provide convincing evidence that the median price of listings that satisfy all WFH criteria is higher than the median price of listings that do not.
+
+What we can do next is to calculate a 95% confidence interval to see how much of a price increase a host can expect if they were to include satisfy all WFH criteria.
+
+```{r}
+#| label: wfh-confidence
+
+boot_dist_wfh <- wifi_work_quiet |> 
+  specify(price ~ all_three) |> 
+  generate(reps = 1000, type = "bootstrap") |> 
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+ci_95_wfh <- get_ci(x = boot_dist_wfh, level = 0.95)
+```
+
+From our analysis, we are 95% confident that listings that satisfy all WFH criteria will have median prices that are between \$`r signif(ci_95_wfh$lower_ci, 3)` to \$`r signif(ci_95_wfh$upper_ci, 3)` higher than those that do not include all the extra amenities. This might not be too significant because the price difference is relatively small and may not justify the additional cost and effort required for hosts to satisfy all the WFH criteria.
+
+Let's now run a linear regression between each criterion and price. By doing so, we learn how much variability in price is explained by whether a listing satisfies a criterion. See [Appendix 2E](appendicies.qmd#appendix-2e-additive-and-interactive-linear-regressions-with-respect-to-work-from-home-amenities) for further analysis.
+
+```{r}
+#| label: wfh-amenities-individual-regression
+
+wifi_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ wifi, data = wifi_work_quiet)
+
+workspace_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ workspace, data = wifi_work_quiet)
+
+quiet_log_price_linear_fit <- linear_reg() |> 
+  fit(log(price) ~ quiet, data = wifi_work_quiet)
+```
+
+```{r}
+#| label: wfh-amenities-individual-regression-table
+
+individual_wfh_amenities_table <- tribble(
+  ~ `Criteria`, ~ `R-squared`,
+  "Wifi", signif(glance(wifi_log_price_linear_fit)$r.squared, 3),
+  "Dedicated workspace", signif(glance(workspace_log_price_linear_fit)$r.squared, 3),
+  "Quiet environment", signif(glance(quiet_log_price_linear_fit)$r.squared, 3)
+) |> 
+  arrange(desc(`R-squared`))
+
+kable(individual_wfh_amenities_table, 
+             align = "l") |> 
+  kable_classic()
+```
+
+We see that the top criterion by R^2^ value is dedicated workspace and the lowest criterion by R^2^ is Wifi. One reason for this might be the fact that Wifi is no longer a luxury, but a necessity, and having Wifi is no longer a differentiating factor. We can infer that, if a host wants to prioritize satisfying a WFH criterion, having a dedicated workspace would be the one to prioritize as it affects price the most out of the list of three WFH criteria.
+
+## Analysis 3: Host characteristics
+
+Another point of interest when looking at Airbnb data is to see how different characteristics of the host---i.e., if they are a super host, have their identity verified, their communication review rating, etc.--- might influence the price. We can start by isolating these host-adjacent variables and identify any trends that might exist. See [Appendix 2F](appendicies.qmd#appendix-2f-trends-of-host-characteristics) for further analysis.
+
+```{r}
+#| label: host-df
+
+host <- airbnb_data |>
+  select(
+    host_id,
+    host_is_superhost,
+    host_identity_verified,
+    review_scores_cleanliness,
+    review_scores_communication,
+    host_response_time,
+    host_acceptance_rate,
+    price,
+  ) |>
+  drop_na() |>
+  group_by(host_id) |>
+  mutate(price = mean(price)) |>
+  distinct(host_id, .keep_all = TRUE) |>
+  mutate(price = log(price)) |>
+  ungroup()
+```
+
+```{r}
+#| label: superhost-df
+
+# Superhost dataframe
+superhosts <- host |>
+  select(host_is_superhost) |>
+  mutate(host_is_superhost = if_else(host_is_superhost == TRUE, "Superhost", "Not superhost")) |>
+  count(host_is_superhost)
+
+# Superhost visual
+superhost_graph <-
+  ggplot(host, mapping = aes(x = host_is_superhost)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = rev,
+                   labels = c("Superhost", "Not superhost")) +
+  labs(title = "# of superhosts",
+       x = "",
+       y = "Count")
+```
+
+```{r}
+#| label: identity-df
+
+# Host identity verified dataframe
+identity_verified <- host |>
+  select(host_identity_verified) |>
+  mutate(host_identity_verified = if_else(host_identity_verified == TRUE, "Verified", "Not verified")) |>
+  count(host_identity_verified)
+
+# Host identity verified graph
+identity_verified_graph <-
+  ggplot(host, mapping = aes(x = host_identity_verified)) +
+  geom_bar() +
+  theme_minimal() +
+  scale_x_discrete(limits = rev,
+                   labels = c("Verified", "Not verified")) +
+  labs(title = "# of verified hosts",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: cleanliness-df
+
+# Review score cleanliness dataframe
+cleanliness <- host |>
+  select(review_scores_cleanliness) |>
+  mutate(
+    scores = case_when(
+      4 < review_scores_cleanliness &
+        review_scores_cleanliness <= 5 ~ "Very high",
+      3 < review_scores_cleanliness &
+        review_scores_cleanliness <= 4 ~ "High",
+      2 < review_scores_cleanliness &
+        review_scores_cleanliness <= 3 ~ "Medium",
+      1 < review_scores_cleanliness &
+        review_scores_cleanliness <= 2 ~ "Low",
+      review_scores_cleanliness <= 1 ~ "Very low",
+    ),
+    cleanliness_score = fct_relevel(scores, "Very low", "Low", "Medium", "High", "Very high")
+  ) |>
+  count(cleanliness_score)
+
+# Review score cleanliness graph
+cleanliness_graph <- ggplot(cleanliness, mapping = aes(x = cleanliness_score, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Host cleanliness rating",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: communication-df
+
+# Review score communication dataframe
+communication <- host |>
+  select(review_scores_communication) |>
+  mutate(
+    scores = case_when(
+      4 < review_scores_communication &
+        review_scores_communication <= 5 ~ "Very high",
+      3 < review_scores_communication &
+        review_scores_communication <= 4 ~ "High",
+      2 < review_scores_communication &
+        review_scores_communication <= 3 ~ "Medium",
+      1 < review_scores_communication &
+        review_scores_communication <= 2 ~ "Low",
+      review_scores_communication <= 1 ~ "Very low",
+    ),
+    communication_score = fct_relevel(scores, "Very low", "Low", "Medium", "High", "Very high")
+  ) |>
+  count(communication_score)
+
+# Review score communication graph
+communication_graph <-
+  ggplot(communication, mapping = aes(x = communication_score, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Host communication rating",
+       x = "",
+       y = "")
+```
+
+```{r}
+#| label: response-df
+
+# Host response time dataframe
+response <- host |>
+  select(host_response_time, price) |>
+  count(host_response_time) |>
+  mutate(
+    Time = fct_relevel(
+      host_response_time,
+      "within an hour",
+      "within a few hours",
+      "within a day",
+      "a few days or more"
+    )
+  )
+
+response[response == "N/A"]  <- NA
+
+response <- na.omit(response)
+
+# Host response time graph
+response_time_graph <-
+  ggplot(response, mapping = aes(x = host_response_time, y = n)) +
+  geom_col() +
+  scale_x_discrete(
+    limits = rev,
+    labels = c(
+      "within an hour",
+      "within a few hours",
+      "within a day",
+      "a few days or more"
+    )
+  ) +
+  theme_minimal() +
+  labs(title = "Hosts by their response time",
+       x = "",
+       y = "Count")
+```
+
+```{r}
+#| label: acceptance-df
+
+# Host acceptance rate dataframe
+acceptance <- host |>
+  select(host_acceptance_rate)
+
+acceptance[acceptance == "N/A"]  <- NA
+
+acceptance <- na.omit(acceptance)
+
+acceptance <- acceptance |>
+  mutate(
+    host_acceptance_rate = substr(host_acceptance_rate, 1, nchar(host_acceptance_rate)-1),
+    host_acceptance_rate = as.numeric(host_acceptance_rate)) |>
+  count(host_acceptance_rate)
+
+# Host acceptance rate graph
+acceptance_graph <-
+  ggplot(acceptance, mapping = aes(x = host_acceptance_rate, y = n)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Hosts by their acceptance rate",
+       x = "",
+       y = "Count")
+```
+
+We observe that nearly 24% of hosts are considered super-hosts and 84% have their identity verified. In terms of review scores, nearly 95% of hosts have an accuracy rating between 4.0 and 5.0, 90% have a cleanliness review score between 4.0 and 5.0, 96% have a check-in review score between 4.0 and 5.0, and 96% have a communication review score between 4.0 and 5.0. As for a host's response rate, about 65% of hosts reply within an hour.
+
+To get a better analysis of how these trends might drive listing prices, we can fit linear regression models across these six characteristics---i.e., `host_is_superhost`, `host_identity_verified`, `review_scores_cleanliness`, `review_scores_communication`, `host_response_time`, and `host_acceptance_rate`--- to predict price. We will fit these models against logged price as well. After fitting these models, we get the following R^2^ values:
+
+```{r}
+#| label: host-models
+
+superhost_model <- linear_reg() |>
+  fit(price ~ host_is_superhost, data = host)
+
+identity_model <- linear_reg() |>
+  fit(price ~ host_identity_verified, data = host)
+
+cleanliness_model <- linear_reg() |>
+  fit(price ~ review_scores_cleanliness, data = host)
+
+communication_model <- linear_reg() |>
+  fit(price ~ review_scores_communication, data = host)
+
+response <- host |>
+  select(host_response_time, price) |>
+  mutate(
+    time = fct_relevel(
+      host_response_time,
+      "within an hour",
+      "within a few hours",
+      "within a day",
+      "a few days or more"
+    )
+  )
+
+response[response == "N/A"]  <- NA
+
+response <- na.omit(response)
+
+response_model <- linear_reg() |>
+  fit(price ~ host_response_time, data = response)
+
+acceptance_model <- linear_reg() |>
+  fit(price ~ host_acceptance_rate, data = host)
+
+host_char_data <- tribble(
+  ~ `Characteristic`, ~ `R-squared`,
+  "Superhost", signif(glance(superhost_model)$r.squared, 3),
+  "Identity is verified", signif(glance(identity_model)$r.squared, 3),
+  "Review cleanliness rating", signif(glance(cleanliness_model)$r.squared, 3),
+  "Review communication rating", signif(glance(communication_model)$r.squared, 3),
+  "Host response time", signif(glance(response_model)$r.squared, 3),
+  "Host acceptance rate", signif(glance(acceptance_model)$r.squared, 3),
+) |> 
+  arrange(desc(`R-squared`))
+
+kable(host_char_data, 
+             align = "l") |> 
+  kable_classic()
+```
+
+With an R^2^ value of 6% for `host_acceptance_rate` and 2.3% for `review_scores_cleanliness`, we can try hypothesis testing to determine the magnitude of predictability of these variables against price.
+
+We can now begin hypothesis testing. Because the R^2^ values from the linear regression models for most host characteristics were marginal, we will focus our analysis on the `host_acceptance_rate` and `review_scores_cleanliness` models. We should note, however, that R^2^ values solely do not provide total insight into the correlation between variables, but instead indicate the amount of variability explained.
+
+We can begin our hypothesis testing with `host_acceptance_rate`. By doing so, we can understand if the price is greater, on average, for listings under hosts with an acceptance rate of less than 51%. To test statistical significance, we will set a threshold value of 0.05.
+
+$H_0:\eta_{~acceptance~rate~<~.51}-\eta_{~acceptance~rate~>~.5}=0$. The median price of listings whose hosts have acceptance rates of less than 51% is the same as the median price of listings whose hosts have acceptance rates of greater than 50%.
+
+$H_A:\eta_{~acceptance~rate~<~.51}-\eta_{~acceptance~rate~>~.5}>0$. The median price of listings whose hosts have acceptance rates of less than 51% is greater than the median price of listings whose hosts have acceptance rates of greater than 50%.
+
+```{r}
+#| label: acceptance-hypothesis
+
+accept <- host |>
+  select(host_acceptance_rate, price) |>
+  mutate(host_acceptance_rate = if_else(
+    0 <= host_acceptance_rate & host_acceptance_rate < 51, TRUE, FALSE
+  ))
+
+point_diff_acceptance <- accept |>
+  specify(price ~ host_acceptance_rate) |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+null_dist_acceptance <- accept |>
+  specify(price ~ host_acceptance_rate) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+```
+
+We observe a p-value of 0, which is less than the threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis. The data suggest that the median price of listings under hosts with an acceptance rate of less than 51%, on average, is higher than that of hosts with an acceptance rate above 50%. There may be several reasons for this. One reason might be that hosts with lower acceptance rates may be more experienced and have a better understanding of the market, or have better quality listings, enabling them to set higher prices for their listings.
+
+Using the same process, we can hypothesize the effect of `review_scores_cleanliness` on price. Namely, we want to see if the median price of listings for hosts with a cleanliness review score between 4.0 and 5.0 is higher than that of hosts with a review less than or equal to 4.0.
+
+$H_0:\eta_{~cleanliness~review~>~4.0}-\eta_{~cleanliness~review~≤~4.0}=0$. The median price of listings whose hosts have cleanliness reviews greater than 4.0 is the same as the median price of listings whose hosts have cleanliness reviews less than 4.0.
+
+$H_A:\eta_{~cleanliness~review~>~4.0}-\eta_{~cleanliness~review~≤~4.0}>0$. The median price of listings whose hosts have cleanliness reviews greater than 4.0 is greater than the median price of listings whose hosts have cleanliness reviews less than 4.0.
+
+```{r}
+#| label: cleanliness-hypothesis
+
+clean <- host |>
+  select(review_scores_cleanliness, price) |>
+  mutate(review_scores_cleanliness = if_else(
+    4.0 < review_scores_cleanliness & review_scores_cleanliness <= 5.0, TRUE, FALSE
+  ))
+
+point_diff_cleanliness <- clean |>
+  specify(price ~ review_scores_cleanliness) |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+
+null_dist_cleanliness <- clean |>
+  specify(price ~ review_scores_cleanliness) |>
+  hypothesize(null = "independence") |>
+  generate(reps = 1000, type = "permute") |>
+  calculate(stat = "diff in medians", order = c(TRUE, FALSE))
+```
+
+Similar to the first hypothesis testing, we also observe a p-value of 0, which is less than the set threshold value of 0.05. As such, we reject the null hypothesis in favor of the alternative hypothesis. The data indicate that the median price of listings for hosts with a cleanliness review score between 4.0 and 5.0 is higher than that of hosts with a review less than or equal to 4.0.
+
+# Evaluation of significance
+
+## Fitting a multivariate linear regression model
+
+We have looked at 22 variables spanning three broad categories (i.e. location, listing characteristics, and host characteristics). We now want to fit a multivariate linear regression model and see how much variability in price can be accounted for. As previously mentioned, the listing prices are heavily right-skewed, and thus, the price will be logged when performing the linear regression fitting.
+
+```{r}
+#| label: all-22-fit
+
+all_22_fit <- linear_reg() |>
+  fit(log(price) ~ neighbourhood_group_cleansed + 
+        wifi +
+        workspace +
+        quiet +
+        host_is_superhost +
+        host_identity_verified +
+        review_scores_cleanliness +
+        review_scores_communication +
+        review_scores_rating +
+        host_response_time +
+        host_acceptance_rate +
+        air_conditioning +
+        heating +
+        dishes_and_silverware +
+        cooking_basics +
+        microwave +
+        coffee_maker +
+        washer +
+        dryer +
+        room_type +
+        bedrooms +
+        bathrooms,
+      data = main_variable_dataset)
+
+all_22_r_squared <- signif(glance(all_22_fit)$r.squared,3)
+```
+
+Fitting all 22 variables in a linear regression model to predict log(price), we observed an R^2^ value of `r all_22_r_squared`. The R-squared value of `r all_22_r_squared` suggests that the linear regression model explains `r all_22_r_squared*100`% of the variability in the log of price based on the 22 predictor variables included in the model. This high degree of explanation can be useful for predicting prices in many applications, highlighting the value of the chosen predictor variables.
+
+## Performing backward elimination
+
+The most complex model is not always the better choice. Hence, we decided to perform backward elimination on our multivariate linear regression model.
+
+[Backward elimination](https://openintro-ims.netlify.app/model-mlr.html#model-selection) is a feature selection technique where variables are iteratively removed from the full model based on their significance, starting with the least significant one (i.e. the variable with the highest p-value). The process continues until the model's performance significantly degrades. This creates a final model with only the most significant predictors, making it easier to interpret, less complex, and less prone to overfitting. See [Appendix 2I](appendicies.qmd#appendix-2i-backward-elimination-to-isolate-significant-predictors) for the order of elimination.
+
+```{r}
+#| label: backward-elimination-vis
+#| fig-height: 3
+#| fig-width: 6
+#| fig-align: center
+
+backward_elimination_table <- read_csv("data/airbnb_data/backward_elimination_table.csv")
+
+backward_elimination_table |> 
+  ggplot(aes(x = `Step`, y = `Adjusted R-squared`)) +
+  geom_point() +
+  labs(
+    x = "Number of eliminations",
+    title = 
+      "Adjusted R-squared vs. Number of Variable Eliminations in Backward\nElimination Model Selection"
+  ) +
+  scale_x_continuous(breaks = seq(1,17)) +
+  theme_minimal() +
+  theme(plot.title = element_text(size = rel(0.95)),
+        axis.title = element_text(size = rel(0.85)))
+```
+
+As variables are eliminated from the model, adjusted R^2^ decreases, which is expected as it reduces the model's complexity. However, the first 14 eliminations maintained a relatively stable adjusted R^2^, indicating that the 14 variables eliminated did not significantly impact the model's performance. The fifteenth elimination had a significant impact on adjusted R^2^, indicating that the final eight variables are significant in defining the model.
+
+We can then infer that the final eight variables, that being location, cleanliness score, microwave, washer, dryer, room type, number of bedrooms, and number of bathrooms, are most significant in predicting price. It is important to note that there are some limitations to our version of backward elimination:
+
+-   Order of variable elimination: In our case, we used p-value as our decision criterion. Different decision criteria, such as AIC or BIC, can be used instead, which may affect the order of variable elimination and the final model's performance.
+
+-   Interaction effects: Our implementation of the multivariate regression model and backward elimination method only considers the individual impact of each variable and may overlook interaction effects between them, which could result in suboptimal model performance.
+
+# Using machine learning to predict price
+
+```{r}
+#| label: train-test-split
+main_variable_dataset <- main_variable_dataset |> 
+  mutate(price = log(price))
+
+airbnb_split <- initial_split(data = main_variable_dataset, prop = 0.75, strata = price) 
+airbnb_train <- training(airbnb_split)
+airbnb_test <- testing(airbnb_split)
+
+airbnb_folds <- vfold_cv(data = airbnb_train, v = 5, strata = price)
+```
+
+```{r}
+#| label: null-model
+
+null_spec <- null_model() |> 
+  set_engine("parsnip") |> 
+  set_mode("regression")
+
+null_mod <- null_spec |>
+  fit_resamples(
+    preprocessor = price ~ .,
+    resamples = airbnb_folds
+)
+
+null_metrics <- null_mod |> 
+  collect_metrics()
+```
+
+In our attempt to create a price predictor model, we fitted a random forest model and the k-nearest neighbors (k-NN) model to our dataset. The original dataset was randomly split into a training set (75% of the data) and a testing set (25% of the data). 5-fold cross-validation was performed. Our null model produced an RMSE value of `r signif(null_metrics$mean[1],3)`.
+
+```{r}
+#| label: rf-and-knn-models
+
+rf_rec <- recipe(price ~ 
+                   neighbourhood_group_cleansed +
+                   review_scores_cleanliness +
+                   microwave + washer + dryer + room_type +
+                   bedrooms + bathrooms,
+                 data = main_variable_dataset) |>
+  step_impute_median(all_numeric_predictors()) |>
+  step_impute_mode(all_nominal_predictors()) |>
+  step_naomit(all_outcomes())
+
+rf_spec <- rand_forest(
+  mtry = tune(),
+  trees = tune(),
+  min_n = tune()
+) |>
+  set_engine("ranger") |>
+  set_mode("regression")
+
+rf_wf <- workflow() |>
+  add_recipe(rf_rec) |>
+  add_model(rf_spec)
+
+rf_tune <- rf_wf |>
+  tune_grid(
+    resample = airbnb_folds,
+    grid = 10,
+    control = ctrl_grid)
+
+knn_rec <- rf_rec |> 
+  step_novel(all_nominal_predictors()) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_predictors()) |>
+  step_normalize(all_numeric_predictors())
+
+knn_spec <- nearest_neighbor(
+  neighbors =  tune()
+) |>
+  set_engine("kknn") |>
+  set_mode("regression")
+
+knn_wf <- workflow() |>
+  add_recipe(knn_rec) |>
+  add_model(knn_spec)
+
+knn_tune <- knn_wf |>
+  tune_grid(
+    resample = airbnb_folds,
+    grid = 10,
+    control = ctrl_grid)
+```
+
+```{r}
+#| label: rf-and-knn-best
+
+best_rf_fit <- fit_best(rf_tune)
+best_knn_fit <- fit_best(knn_tune)
+
+rf_test_res <- bind_cols(
+  airbnb_test,
+  predict(best_rf_fit, new_data = airbnb_test)
+) |> 
+  select(price, .pred) |> 
+  mutate(model = "Random Forest")
+
+knn_test_res <- bind_cols(
+  airbnb_test,
+  predict(best_knn_fit, new_data = airbnb_test)
+) |> 
+  select(price, .pred) |> 
+  mutate(model = "K Nearest Neighbor")
+```
+
+```{r}
+#| label: rf-and-knn-results-vis
+#| fig-height: 4
+#| fig-width: 4
+#| fig-align: center
+
+knn_test_res <- knn_test_res |> 
+  mutate(model = "K Nearest Neighbor")
+
+rf_test_res <- rf_test_res |> 
+  mutate(model = "Random Forest")
+
+bind_rows(knn_test_res, rf_test_res) |> 
+  ggplot(aes(x = price, y = .pred, color = model)) +
+  geom_jitter(alpha = 0.2, stroke = 0.25) +
+  coord_obs_pred() +
+  geom_abline(lty = 2) +
+  scale_color_manual(values = c("#440154", "#21908c")) +
+  labs(
+    x = "Log Price",
+    y = "Predicted Log Price",
+    color = "Model",
+    title = "K-NN and Random Forest Models for\nLog Price Prediction"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom",
+        plot.title = element_text(size = rel(0.95)),
+        axis.title = element_text(size = rel(0.85)),
+        legend.title = element_text(size = rel(0.85)),
+        legend.text = element_text(size = rel(0.85)))
+```
+
+Both the random forest and k-NN models outperformed the null model, with RMSE values of 0.418 and 0.526 respectively. The random forest model had higher prediction accuracy than the k-NN model, but it is important to note that the RMSE values are on a logged price scale, which implies that the prices predicted by the random forest model are still, on average, 1.5 times higher than the actual prices.
+
+Although the RMSE values for the random forest and k-NN models suggest significant prediction errors, there are still ways to improve their performance. For instance, further hyperparameter tuning can be applied to optimize the models and other ML models like gradient-boosted decision trees and neural networks can be explored to determine if they can better capture the complexity of the data.
+
+# Interpretation and conclusions
+
+By utilizing a combination of linear regressions, adjusted R^2^ comparisons, and machine learning techniques, we were able to identify the key variables that appeared to significantly impact Airbnb Listing prices in NYC before March 6th, 2023.
+
+Our investigation revealed the most prominent of these factors are the listing's **location**, **cleanliness score**, **room type**, **the number of bedrooms and bathrooms**, and the presence of a **microwave**, **washer**, and **dryer**. By taking these factors into account hosts in NYC can optimize their professional habits, listing qualities, and other pricing strategies to attract more guests and make more money. Similarly, travelers can make more informed decisions to find accommodations that suit their preferences and budget, resulting in a more satisfactory and efficient Airbnb experience for all parties involved.
+
+# Limitations
+
+There are several limitations to our data and analysis:
+
+-   With our current dataset, we cannot do a time-series analysis on prices since the prices listed in the main dataset is valid for the one day the data was scraped. There are more .csv files on Inside Airbnb that we can download and merge to conduct a time-series analysis on prices in the future.
+
+-   We have done an analysis of Airbnb listings in NYC. How about listings in Chicago? San Diego? London? Trends we find in NYC may not be applicable in other cities. A future project might be to analyze a city similar to NYC and decide whether trends are similar.
+
+-   Our price analysis on Airbnb listings in NYC did not take into account the trends at the neighborhood level. For example, how extra amenities affect price may be different in Midtown compared to in Bedford-Stuyvesant. As such, a closer look into neighborhood trends can garner more accurate insights into the prices of individual listings and how they may be influenced by various factors in specific neighborhoods.
+
+-   Our analysis excludes relevant variables that could impact pricing, such as external market conditions and seasonal demand. Further analysis can be done at specific times (e.g. COVID disruption, Christmas and New Year's).
+
+# Acknowledgements
+
+We thank the collaborators and partners at [Inside Airbnb](http://insideairbnb.com/) for the comprehensive dataset.
+
+We also found the below resources helpful:
+
+-   [Introduction to Modern Statistics, First Edition](https://openintro-ims.netlify.app/index.html) by Mine Çetinkaya-Rundel and Johanna Hardin
+-   [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge
+
+We thank Professor Soltoff and the INFO 2950 course staff for all the help and support.

@@ -1,0 +1,20 @@
+---
+title: "Analyzing Airbnb data"
+subtitle: "Preregistration of analyses"
+format: html
+editor: visual
+execute:
+  echo: true
+---
+
+# Analysis #1
+
+In our exploratory data analysis, we found that Manhattan and Brooklyn have the highest median listing prices among the five boroughs included in our main dataset. However, we aim to examine neighborhood-level data to identify areas in Manhattan and Brooklyn that have the highest and lowest listing prices and to assess possible reasons for price discrepancies.
+
+# Analysis #2
+
+Upon analyzing the most frequently mentioned amenities in Airbnb listings in New York City, we observed that "dedicated workspace" appears in the top 20 amenities. We believe that a dedicated workspace is an important amenity for Airbnb guests who are looking for a work-from-home (WFH) setup. This is likely to be true for business travelers who may need to work during their temporary stay in NYC, but also for leisure travelers who want to stay connected and work remotely while on vacation.
+
+In addition to a dedicated workspace, there are several other important amenities that Airbnb guests may be looking for in a work-from-home (WFH) setup, including reliable high-speed internet, comfortable seating and good lighting, and a quiet environment.
+
+Hence, we aim to see which neighborhoods are most popular for work-from-home setups, based on the availability and quality of amenities. For example, we can examine which NYC boroughs have the highest proportion of WFH-appropriate listings.
